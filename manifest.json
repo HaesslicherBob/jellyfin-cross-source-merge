@@ -13,7 +13,7 @@
                 "changelog": "A film that is really a series can now be turned into one right in the mapping dialog: a switch on the film row searches TMDB for the series, maps the title into the series namespace and files it into the series tree in the same step. Film folders carry no episode numbers, so the merge makes one episode per file (S01E01) and writes the series folder with its season and tvshow.nfo. Without the switch nothing changes.",
                 "targetAbi": "12.4.0.0",
                 "sourceUrl": "https://github.com/HaesslicherBob/jellyfin-cross-source-merge/releases/download/v0.0.3/cross-source-merge-0.0.3.zip",
-                "checksum": "a1fa00d72b67425920df546c396f0c45",
+                "checksum": "9be273428a15f556090e81796fe42255",
                 "timestamp": "2026-11-23T00:50:00Z"
             },
             {
