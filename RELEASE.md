@@ -56,16 +56,19 @@ git push origin main --tags
 ```
 
 The workflow `.github/workflows/release.yml` builds its own ZIP on the tag and
-publishes it with the release. **That ZIP is not byte-identical** to a local build
-(the assembly path ends up in the binary), so its MD5 differs. Two ways out:
+publishes it with the release, so the asset users download is the one CI built -
+not the one from step 3. Its MD5 differs from a local build (the build path ends
+up in the assembly), therefore:
 
-- upload the locally built ZIP by hand to the release and delete the one the
-  workflow attached, or
-- keep the workflow's ZIP and copy the MD5 from the run summary
-  (`Checksum` step) into `manifest.json` afterwards.
+1. let the release job finish,
+2. take the MD5 from the run summary (`Checksum` step) or compute it from the
+   downloaded asset,
+3. put it into `manifest.json` and commit that on `main`.
 
-Pick one and stick to it - a wrong checksum makes the plugin repository install
-fail with "checksum does not match".
+That is the follow-up commit after the release commit - the manifest on `main`
+must always describe the asset that is actually published. Do not upload the
+local ZIP from step 3 to a release that CI already filled; two different files
+under one version number break the install for everybody.
 
 ## 6. Check the result
 
