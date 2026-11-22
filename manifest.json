@@ -9,6 +9,14 @@
         "imageUrl": "",
         "versions": [
             {
+                "version": "0.0.3",
+                "changelog": "A film that is really a series can now be turned into one right in the mapping dialog: a switch on the film row searches TMDB for the series, maps the title into the series namespace and files it into the series tree in the same step. Film folders carry no episode numbers, so the merge makes one episode per file (S01E01) and writes the series folder with its season and tvshow.nfo. Without the switch nothing changes.",
+                "targetAbi": "12.4.0.0",
+                "sourceUrl": "https://github.com/HaesslicherBob/jellyfin-cross-source-merge/releases/download/v0.0.3/cross-source-merge-0.0.3.zip",
+                "checksum": "a1fa00d72b67425920df546c396f0c45",
+                "timestamp": "2026-11-23T00:50:00Z"
+            },
+            {
                 "version": "0.0.2",
                 "changelog": "Configuration page fixed: a doubled comment end dropped the whole palette, so the page fell back to inherited grey and the marks turned invisible. Text colours are defined now. Mapped means an id is there - titles that exist only in a source no longer sit in \"without mapping\" for good, and a missing library title shows as its own mark. German leftovers are translated (Target tree, Backups, Work list, Detection, Writing, Search, Status, Target path).",
                 "targetAbi": "12.4.0.0",
