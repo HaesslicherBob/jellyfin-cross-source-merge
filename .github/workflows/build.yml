@@ -1,0 +1,31 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore and build
+        run: dotnet build src/Jellyfin.Plugin.CrossSourceMerge/Jellyfin.Plugin.CrossSourceMerge.csproj --configuration Release
+
+      - name: Check naming rules
+        run: dotnet run --project tests/laufprobe --configuration Release
+
+      - name: Verify the DLL was produced
+        run: test -f src/Jellyfin.Plugin.CrossSourceMerge/bin/Release/net10.0/Jellyfin.Plugin.CrossSourceMerge.dll
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Jellyfin.Plugin.CrossSourceMerge
+          path: src/Jellyfin.Plugin.CrossSourceMerge/bin/Release/net10.0/Jellyfin.Plugin.CrossSourceMerge.dll

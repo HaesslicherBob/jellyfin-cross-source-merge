@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Cross-Source Merge</title>
+    
+</head>
+<body>
+<div id="CrossSourceMergeConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
+<style type="text/css">
+        /* ------------------------------------------------------------------
+           Everything lives under #CrossSourceMergeConfigPage, so the page does not
+           touch the Jellyfin UI. Colors come from translucent grey plus the accent
+           color, which works for light and dark themes without knowing about them.
+           */
+           ------------------------------------------------------------------ */
+        #CrossSourceMergeConfigPage {
+            --csm-rand: rgba(128, 128, 128, .26);
+            --csm-rand-stark: rgba(128, 128, 128, .42);
+            --csm-flaeche: rgba(128, 128, 128, .07);
+            --csm-flaeche2: rgba(128, 128, 128, .14);
+            --csm-akzent: var(--accent, #00a4dc);
+            --csm-gut: #2ea043;
+            --csm-warn: #bf8700;
+            --csm-schlecht: #d1242f;
+            --csm-radius: 8px;
+            max-width: 1500px;
+            padding-bottom: 6em;
+        }
+
+        #CrossSourceMergeConfigPage [hidden] { display: none !important; }
+
+        /* tabs */
+        .csm-tabs {
+            display: flex; gap: .2em; margin: 0 0 1.4em;
+            border-bottom: 1px solid var(--csm-rand); overflow-x: auto;
+        }
+        #CrossSourceMergeConfigPage .csm-tab {
+            background: none; border: 0; border-bottom: 2px solid transparent;
+            margin-bottom: -1px; padding: .7em 1em; border-radius: 0;
+            font: inherit; font-size: .9em; color: inherit; opacity: .62;
+            cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: .5em;
+        }
+        #CrossSourceMergeConfigPage .csm-tab:hover { opacity: .92; background: var(--csm-flaeche); }
+        #CrossSourceMergeConfigPage .csm-tab.aktiv { opacity: 1; font-weight: 600; border-bottom-color: var(--csm-akzent); }
+        #CrossSourceMergeConfigPage .csm-tab .csm-zahl {
+            font-size: .8em; font-weight: 500; padding: .05em .45em; border-radius: 999px;
+            background: var(--csm-flaeche2); min-width: 1.8em; text-align: center;
+        }
+        #CrossSourceMergeConfigPage .csm-tab.aktiv .csm-zahl { background: var(--csm-akzent); color: #fff; }
+
+        /* Karten */
+        .csm-karte {
+            border: 1px solid var(--csm-rand); border-radius: var(--csm-radius);
+            background: var(--csm-flaeche); padding: 1.1em 1.2em; margin: 0 0 1.2em;
+        }
+        .csm-karte > h3 {
+            margin: 0 0 .7em; font-size: 1em; font-weight: 600;
+            display: flex; align-items: center; gap: .5em;
+        }
+        .csm-einleitung {
+            margin: 0 0 1em; font-size: .82em; line-height: 1.5; opacity: .68; max-width: 62em;
+        }
+        .csm-einleitung:last-child { margin-bottom: 0; }
+        .csm-einleitung code, .csm-tipp code {
+            background: var(--csm-flaeche2); border-radius: 3px; padding: .05em .3em;
+            font-family: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+            font-size: .95em;
+        }
+
+        /* Statuskarte */
+        .csm-status { border-left: 3px solid var(--csm-rand-stark); }
+        .csm-status[data-lage="gut"] { border-left-color: var(--csm-gut); }
+        .csm-status[data-lage="warnung"] { border-left-color: var(--csm-warn); }
+        .csm-status[data-lage="fehler"] { border-left-color: var(--csm-schlecht); }
+        .csm-status[data-lage="laeuft"] { border-left-color: var(--csm-akzent); }
+
+        .csm-status-kopf { display: flex; align-items: flex-start; gap: 1em; flex-wrap: wrap; }
+        .csm-status-kopf > div:first-child { flex: 1 1 20em; }
+        .csm-status-titel { margin: 0; font-size: 1.05em; font-weight: 600; }
+        .csm-status-zeit { margin: .15em 0 0; font-size: .8em; opacity: .66; }
+
+        .csm-zahlen { display: flex; flex-wrap: wrap; gap: 2em; margin: 1em 0 .2em; }
+        .csm-zahl-block b {
+            display: block; font-size: 1.45em; font-weight: 600; line-height: 1.25;
+            font-variant-numeric: tabular-nums;
+        }
+        .csm-zahl-block span { font-size: .74em; opacity: .66; }
+
+        .csm-balken {
+            height: 3px; margin: .9em 0 .2em; border-radius: 2px;
+            background: var(--csm-flaeche2); overflow: hidden;
+        }
+        .csm-balken > i { display: block; height: 100%; width: 0; background: var(--csm-akzent); transition: width .35s; }
+
+        .csm-block-hinweis {
+            margin: .9em 0 0; padding: .6em .8em; border-radius: 6px; font-size: .82em;
+            line-height: 1.5; background: rgba(191, 135, 0, .12);
+            border: 1px solid rgba(191, 135, 0, .35);
+        }
+        .csm-block-hinweis b { font-weight: 600; }
+        .csm-block-hinweis.ruhig { background: var(--csm-flaeche2); border-color: var(--csm-rand); }
+
+        /* Knoepfe */
+        #CrossSourceMergeConfigPage button {
+            font: inherit; font-size: .82em; color: inherit; cursor: pointer;
+            background: var(--csm-flaeche2); border: 1px solid transparent;
+            border-radius: 4px; padding: .45em .9em; line-height: 1.4;
+        }
+        #CrossSourceMergeConfigPage button:hover:not([disabled]) { background: var(--csm-rand); }
+        #CrossSourceMergeConfigPage button:focus-visible { outline: 2px solid var(--csm-akzent); outline-offset: 1px; }
+        #CrossSourceMergeConfigPage button[disabled] { opacity: .45; cursor: default; }
+        #CrossSourceMergeConfigPage button.haupt {
+            background: var(--csm-akzent); color: #fff; font-weight: 500;
+        }
+        #CrossSourceMergeConfigPage button.haupt:hover:not([disabled]) { filter: brightness(1.1); background: var(--csm-akzent); }
+        #CrossSourceMergeConfigPage button.leise { background: none; border-color: var(--csm-rand); }
+        #CrossSourceMergeConfigPage button.leise:hover:not([disabled]) { background: var(--csm-flaeche); }
+        #CrossSourceMergeConfigPage button.klein { font-size: .76em; padding: .3em .6em; }
+        #CrossSourceMergeConfigPage button.weg {
+            background: none; border: 0; font-size: 1.1em; line-height: 1; opacity: .45;
+            padding: .2em .45em; border-radius: 50%;
+        }
+        #CrossSourceMergeConfigPage button.weg:hover { opacity: 1; background: rgba(209, 36, 47, .18); color: var(--csm-schlecht); }
+
+        /* Felder */
+        .csm-feld { display: flex; flex-direction: column; gap: .2em; }
+        .csm-feld > label { font-size: .72em; opacity: .62; }
+        #CrossSourceMergeConfigPage input[type="text"],
+        #CrossSourceMergeConfigPage input[type="number"],
+        #CrossSourceMergeConfigPage input[type="password"],
+        #CrossSourceMergeConfigPage select {
+            font: inherit; font-size: .86em; color: inherit;
+            background: var(--csm-flaeche); border: 1px solid var(--csm-rand);
+            border-radius: 4px; padding: .4em .5em; min-height: 2.1em;
+            box-sizing: border-box; width: 100%; max-width: 34em;
+        }
+        #CrossSourceMergeConfigPage select { cursor: pointer; }
+        #CrossSourceMergeConfigPage input:focus, #CrossSourceMergeConfigPage select:focus {
+            border-color: var(--csm-akzent); outline: none;
+        }
+        #CrossSourceMergeConfigPage input::placeholder { color: inherit; opacity: .38; }
+        #CrossSourceMergeConfigPage input[type="checkbox"] {
+            appearance: none; -webkit-appearance: none;
+            width: 1.1em; height: 1.1em; margin: 0; flex: 0 0 auto;
+            border: 1px solid var(--csm-rand-stark); border-radius: 3px;
+            background: var(--csm-flaeche); cursor: pointer; position: relative;
+            box-sizing: border-box;
+        }
+        #CrossSourceMergeConfigPage input[type="checkbox"]:hover { border-color: var(--csm-rand-stark); background: var(--csm-flaeche2); }
+        #CrossSourceMergeConfigPage input[type="checkbox"]:checked {
+            background: var(--csm-akzent); border-color: var(--csm-akzent);
+        }
+        #CrossSourceMergeConfigPage input[type="checkbox"]:checked::after {
+            content: ''; position: absolute; left: 50%; top: 45%;
+            width: .26em; height: .5em; border: solid #fff; border-width: 0 2px 2px 0;
+            transform: translate(-50%, -55%) rotate(45deg);
+        }
+        #CrossSourceMergeConfigPage input[type="checkbox"]:focus-visible {
+            outline: 2px solid var(--csm-akzent); outline-offset: 1px;
+        }
+        .csm-feld-block.csm-unterfeld { margin-left: 1.7em; }
+        .csm-feld-block { margin: 0 0 1.3em; max-width: 34em; }
+        .csm-feld-block > label { display: block; font-size: .8em; margin-bottom: .3em; opacity: .82; }
+        .csm-feld-block > .csm-tipp { margin: .35em 0 0; font-size: .78em; line-height: 1.5; opacity: .62; }
+        #CrossSourceMergeConfigPage .csm-feld-block.schmal > input { max-width: 7em; }
+
+        .csm-schalter { display: flex; gap: .65em; align-items: flex-start; margin: 0 0 1.1em; }
+        .csm-schalter > input { margin-top: .1em; flex: 0 0 auto; width: 1.15em; height: 1.15em; }
+        .csm-schalter > div > b { display: block; font-weight: 500; font-size: .88em; }
+        .csm-schalter > div > span { display: block; font-size: .78em; line-height: 1.5; opacity: .62; margin-top: .15em; max-width: 62em; }
+
+        /* Tabellen */
+        .csm-tabelle-box { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .csm-tabelle { width: 100%; border-collapse: collapse; font-size: .84em; }
+        .csm-tabelle th {
+            text-align: left; font-weight: 500; font-size: .92em; opacity: .62;
+            padding: .55em .6em; border-bottom: 1px solid var(--csm-rand-stark); white-space: nowrap;
+        }
+        .csm-tabelle td { padding: .45em .6em; border-bottom: 1px solid var(--csm-rand); vertical-align: middle; }
+        .csm-tabelle tbody tr:hover { background: var(--csm-flaeche); }
+        .csm-tabelle tbody tr:nth-child(even) { background: rgba(128, 128, 128, .035); }
+        .csm-tabelle tbody tr:nth-child(even):hover { background: var(--csm-flaeche); }
+        .csm-tabelle th.sortierbar {
+            cursor: pointer; user-select: none; background: none; border: 0;
+            border-bottom: 1px solid var(--csm-rand-stark); border-radius: 0;
+            font: inherit; font-size: .92em; font-weight: 500; opacity: .62;
+            padding: .55em .6em; text-align: left; color: inherit;
+        }
+        .csm-tabelle th.sortierbar:hover { opacity: 1; }
+        .csm-tabelle th[aria-sort="ascending"], .csm-tabelle th[aria-sort="descending"] { opacity: 1; }
+        .csm-tabelle .pfeil { font-size: .95em; opacity: .45; margin-left: .3em; }
+        .csm-tabelle th[aria-sort="ascending"] .pfeil, .csm-tabelle th[aria-sort="descending"] .pfeil { opacity: 1; }
+        /* the browser ignores max-width on a table cell with automatic column
+           widths; a block inside the cell obeys it. */
+        .csm-tabelle td.ordner > b {
+            font-weight: 500; display: block; max-width: 20em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .csm-tabelle td.ordner > span {
+            display: block; font-size: .82em; opacity: .5; max-width: 22em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .csm-tabelle td.ziel {
+            max-width: none;
+        }
+        .csm-tabelle td.ziel > span {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: .86em;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .csm-tabelle tr.erledigt { opacity: .5; }
+        .csm-tabelle tr.erledigt td.ordner > b::after {
+            content: " · imported"; font-size: .8em; font-weight: 400; opacity: .8;
+        }
+        .csm-tabelle tr.csm-fehlerzeile { background: rgba(209, 36, 47, .1) !important; box-shadow: inset 2px 0 0 var(--csm-schlecht); }
+        .csm-tabelle .leer { padding: 2.2em 1em; text-align: center; font-size: .9em; opacity: .6; }
+
+        /* badges and category toggles */
+        .csm-marke {
+            display: inline-block; margin: 0 .3em .2em 0; padding: .05em .45em;
+            border-radius: 3px; font-size: .74em; background: var(--csm-flaeche2); white-space: nowrap;
+        }
+        .csm-kats { display: flex; flex-wrap: wrap; gap: .3em; }
+        #CrossSourceMergeConfigPage button.csm-kat {
+            background: none; border: 1px solid var(--csm-rand); border-radius: 999px;
+            font-size: .68em; padding: .1em .5em; opacity: .75; line-height: 1.7;
+        }
+        #CrossSourceMergeConfigPage button.csm-kat:hover:not([disabled]) { opacity: 1; background: var(--csm-flaeche); }
+        #CrossSourceMergeConfigPage button.csm-kat.an {
+            border-color: var(--csm-akzent); color: var(--csm-akzent); opacity: 1;
+            background: rgba(0, 164, 220, .12); font-weight: 500;
+        }
+        #CrossSourceMergeConfigPage button.csm-kat.std { border-style: dashed; }
+        .csm-kats.speichert { opacity: .5; }
+        .csm-kat-stand {
+            font-size: .72em; opacity: .5; margin-top: .3em;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* Werkzeugleiste */
+        .csm-werkzeuge { display: flex; flex-wrap: wrap; gap: .9em 1em; align-items: flex-end; margin: 0 0 1em; }
+        .csm-werkzeuge .csm-feld { min-width: 8em; }
+        .csm-werkzeuge .csm-feld.schmal { min-width: 0; max-width: 5em; }
+        .csm-werkzeuge .csm-feld.suche { flex: 1 1 16em; max-width: 24em; }
+        .csm-werkzeuge .csm-knoepfe { display: flex; gap: .5em; margin-left: auto; }
+        .csm-suchfeld { position: relative; }
+        .csm-suchfeld input { padding-right: 1.9em; }
+        #CrossSourceMergeConfigPage .csm-suchfeld button {
+            position: absolute; right: .2em; top: 50%; transform: translateY(-50%);
+            background: none; border: 0; opacity: .5; padding: .15em .4em; font-size: .95em;
+        }
+        #CrossSourceMergeConfigPage .csm-suchfeld button:hover { opacity: 1; background: none; }
+
+        /* list footer */
+        .csm-blatt {
+            display: flex; align-items: center; gap: .5em; flex-wrap: wrap;
+            margin-top: .9em; font-size: .82em;
+        }
+        .csm-blatt .info { opacity: .66; margin-right: auto; }
+        .csm-blatt .seite { opacity: .8; font-variant-numeric: tabular-nums; min-width: 7.5em; text-align: center; }
+        #CrossSourceMergeConfigPage .csm-blatt button { min-width: 2.4em; font-size: 1em; line-height: 1.4; }
+
+        .csm-sr {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+        }
+
+        .csm-meldung { font-size: .8em; opacity: .8; }
+        .csm-meldung.ok { color: var(--csm-gut); opacity: 1; }
+        .csm-meldung.bad { color: var(--csm-schlecht); opacity: 1; }
+        .csm-meldung:empty { display: none; }
+
+        .csm-hinweiszeile { display: flex; flex-wrap: wrap; gap: .4em; margin: 0 0 1em; }
+        .csm-hinweiszeile .csm-marke { white-space: normal; line-height: 1.45; }
+        .csm-hinweiszeile:empty { display: none; }
+
+        /* Speicherleiste */
+        .csm-speicher {
+            position: sticky; bottom: 0; z-index: 3;
+            display: flex; align-items: center; gap: .7em; flex-wrap: wrap;
+            margin-top: 1.2em; padding: .7em 1em;
+            border: 1px solid var(--csm-rand); border-radius: var(--csm-radius);
+            background: rgba(128, 128, 128, .16);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .csm-speicher .stand { font-size: .78em; opacity: .7; margin-left: auto; }
+        .csm-speicher .stand.geaendert { color: var(--csm-warn); opacity: 1; }
+
+        .csm-quellen-tabelle td { vertical-align: top; }
+        #bestandTabelle td input[type="text"], #bestandTabelle td input[type="number"] { width: 100%; min-width: 0; }
+        .csm-quellen-tabelle input[type="text"], .csm-quellen-tabelle select { max-width: none; }
+
+        @media (max-width: 760px) {
+            .csm-werkzeuge .csm-knoepfe { margin-left: 0; }
+            .csm-speicher { position: static; }
+            /* tabs stay on one line and are swiped: wrapped, four tabs would
+               make three restless rows. */
+            .csm-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+            .csm-tabs::-webkit-scrollbar { display: none; }
+            #CrossSourceMergeConfigPage .csm-tab { padding: .7em .8em; }
+            /* Breite Tabellen rollen seitlich, statt in Wortfetzen zu brechen. */
+            .csm-tabelle-box > .csm-tabelle { min-width: 34em; }
+            /* seven columns do not fit side by side on a phone. The
+               title list therefore turns into cards: every cell gets its
+               heading from data-label. */
+            #bestandTabelle thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+            #bestandTabelle, #bestandTabelle tbody, #bestandTabelle tr, #bestandTabelle td { display: block; width: auto; }
+            #bestandTabelle tr {
+                border: 1px solid var(--csm-rand); border-radius: var(--csm-radius);
+                padding: .7em .8em .3em; margin: 0 0 .8em; background: none !important;
+            }
+            #bestandTabelle td { border: 0; padding: .35em 0; max-width: none; }
+            #bestandTabelle td[data-label]::before {
+                content: attr(data-label); display: block; font-size: .72em;
+                opacity: .5; margin-bottom: .12em;
+            }
+            #bestandTabelle td.ordner > b,
+            #bestandTabelle td.ordner > span,
+            #bestandTabelle td.ziel > span {
+                font-size: inherit; max-width: none; white-space: normal; overflow: visible;
+            }
+            #bestandTabelle td.ordner > b { font-size: 1.05em; }
+            #bestandTabelle td.ziel { white-space: normal; word-break: break-all; }
+            .csm-tabelle td.ziel { max-width: none; }
+        }
+    
+        /* color per source and per category - same color in legend and table */
+        #CrossSourceMergeConfigPage .csm-legende {
+            display: flex; flex-wrap: wrap; align-items: center; gap: .35em 1.1em;
+            margin: 0 0 .7em; font-size: .8em; color: var(--csm-text-leise);
+        }
+        #CrossSourceMergeConfigPage .csm-legende b { font-weight: 500; opacity: .85; }
+        #CrossSourceMergeConfigPage .csm-legende span {
+            display: inline-flex; align-items: center; gap: .35em; white-space: nowrap;
+        }
+        #CrossSourceMergeConfigPage .csm-legende i {
+            width: .7em; height: .7em; border-radius: 50%;
+            background: var(--csm-farbe, currentColor); flex: none;
+        }
+        #CrossSourceMergeConfigPage .csm-quelle-chip {
+            display: inline-flex; align-items: center; gap: .3em;
+            margin: .3em .3em 0 0; padding: .05em .45em;
+            border: 1px solid var(--csm-farbe, var(--csm-rand-stark)); border-radius: 999px;
+            font-size: .74em; white-space: nowrap; color: var(--csm-text-leise);
+        }
+        #CrossSourceMergeConfigPage .csm-quelle-chip i {
+            width: .5em; height: .5em; border-radius: 50%; background: var(--csm-farbe, currentColor); flex: none;
+        }
+        #CrossSourceMergeConfigPage button.csm-kat i {
+            width: .55em; height: .55em; border-radius: 50%;
+            background: var(--csm-farbe, currentColor); flex: none; margin-right: .35em;
+        }
+        #CrossSourceMergeConfigPage button.csm-kat {
+            display: inline-flex; align-items: center;
+        }
+        #CrossSourceMergeConfigPage button.csm-kat.an {
+            border-color: var(--csm-farbe, var(--csm-akzent));
+            background: var(--csm-flaeche);
+            color: var(--csm-text);
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px var(--csm-farbe, var(--csm-akzent));
+        }
+        #CrossSourceMergeConfigPage button.csm-kat.an i { transform: scale(1.25); }
+        #CrossSourceMergeConfigPage button.csm-kat[data-fremd="1"] { border-style: dotted; opacity: .8; }
+        #CrossSourceMergeConfigPage button.csm-kat.std i { background: var(--csm-text-leise); }
+        #CrossSourceMergeConfigPage .csm-anbieter-zeile { display: flex; gap: .3em; margin-bottom: .3em; }
+        #CrossSourceMergeConfigPage .csm-anbieter-zeile select { flex: 1 1 auto; min-width: 0; min-height: 2.1em; }
+    </style>
+
+    <div class="csm-tabs" role="tablist" aria-label="Sections">
+        <button type="button" class="csm-tab aktiv" role="tab" id="tab-uebersicht" data-tab="uebersicht"
+                aria-controls="pane-uebersicht" aria-selected="true">Overview</button>
+        <button type="button" class="csm-tab" role="tab" id="tab-zuordnungen" data-tab="zuordnungen"
+                aria-controls="pane-zuordnungen" aria-selected="false">Mappings<span class="csm-zahl" id="zahlOffen" hidden></span></button>
+        <button type="button" class="csm-tab" role="tab" id="tab-quellen" data-tab="quellen"
+                aria-controls="pane-quellen" aria-selected="false">Sources &amp; Categories</button>
+        <button type="button" class="csm-tab" role="tab" id="tab-aufraeumen" data-tab="aufraeumen"
+                aria-controls="pane-aufraeumen" aria-selected="false">Cleanup<span class="csm-zahl" id="zahlAlt" hidden></span></button>
+        <button type="button" class="csm-tab" role="tab" id="tab-einstellungen" data-tab="einstellungen"
+                aria-controls="pane-einstellungen" aria-selected="false">Settings</button>
+    </div>
+
+    <!-- ================= Overview ================= -->
+    <section class="csm-abschnitt" id="pane-uebersicht" data-tab="uebersicht" role="tabpanel" aria-labelledby="tab-uebersicht">
+
+        <div class="csm-karte csm-status" id="statusBox" data-lage="neutral">
+            <div class="csm-status-kopf">
+                <div>
+                    <h3 class="csm-status-titel" id="statusTitel">No run yet</h3>
+                    <p class="csm-status-zeit" id="statusZeit">As soon as the timer fires or you start a run, the numbers appear here.</p>
+                </div>
+                <div class="csm-knoepfe" style="display:flex;gap:.5em;flex-wrap:wrap">
+                    <button type="button" class="haupt" id="btnLauf" aria-label="Merge now">Merge now</button>
+                    <button type="button" class="leise" id="btnSichern" aria-label="Create a backup now">Create backup</button>
+                </div>
+            </div>
+
+            <div class="csm-balken" id="statusBalken" hidden><i id="statusFuell"></i></div>
+            <div class="csm-zahlen" id="statusZahlen"></div>
+            <p class="csm-status-zeit" id="statusMeldung"></p>
+            <div class="csm-block-hinweis" id="statusWarnung" hidden></div>
+            <div class="csm-block-hinweis ruhig" id="planHinweis" hidden>
+                <b>Dry run is active.</b> The plugin calculates everything but writes nothing into the target tree.
+            </div>
+            <p class="csm-meldung" id="laufMeldung" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="csm-karte">
+            <h3>Zielbaum</h3>
+            <p class="csm-einleitung">
+                The plugin creates one folder per title in the target directory and links to the
+                medium of the best source. Whatever is missing or looks wrong can be fixed under
+                <b>Zuordnungen</b> geradeziehen.
+            </p>
+            <button type="button" class="leise" id="btnZuListe">Review mappings</button>
+        </div>
+
+        <div class="csm-karte">
+            <h3>Sicherungen</h3>
+            <p class="csm-einleitung">
+                Before every writing run the plugin backs up its state. The newest entries are on top,
+                the oldest drop out once the configured number is reached.
+            </p>
+            <div class="csm-tabelle-box">
+            <table class="csm-tabelle">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:11em">Zeitpunkt</th>
+                    <th scope="col" style="width:5em">Size</th>
+                    <th scope="col">File</th>
+                    <th scope="col" style="width:8em"><span class="csm-sr">Aktion</span></th>
+                </tr>
+                </thead>
+                <tbody id="sicherungenBody"></tbody>
+            </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= Mappings ================= -->
+    <section class="csm-abschnitt" id="pane-zuordnungen" data-tab="zuordnungen" role="tabpanel" aria-labelledby="tab-zuordnungen" hidden>
+
+        <div class="csm-karte">
+            <h3>Werkliste</h3>
+            <p class="csm-einleitung">
+                Every title from every source - with source, tag, target name and category. Anything without a
+                tag can be added here: type it in or search by folder name and
+                apply. A click on a category changes only that title, a click on the
+                target name shows the path in the tree.
+            </p>
+
+            <div class="csm-werkzeuge">
+                <div class="csm-feld suche">
+                    <label for="txtSuche">Suchen</label>
+                    <span class="csm-suchfeld">
+                        <input type="text" id="txtSuche" placeholder="Title, folder or tag" autocomplete="off" />
+                        <button type="button" id="btnSucheLeeren" title="Clear search" aria-label="Clear search" hidden>&times;</button>
+                    </span>
+                </div>
+                <div class="csm-feld">
+                    <label for="selQuelle">Source</label>
+                    <select id="selQuelle">
+                        <option value="alle">all sources</option>
+                    </select>
+                </div>
+                <div class="csm-feld">
+                    <label for="selStatus">Zustand</label>
+                    <select id="selStatus">
+                        <option value="offen">without mapping</option>
+                        <option value="zugeordnet">zugeordnet</option>
+                        <option value="alle">all</option>
+                    </select>
+                </div>
+                <div class="csm-feld">
+                    <label for="selKategorie">Category</label>
+                    <select id="selKategorie">
+                        <option value="">all</option>
+                        <option value="standard">standard only</option>
+                    </select>
+                </div>
+                <div class="csm-feld schmal">
+                    <label for="selGroesse">Per page</label>
+                    <select id="selGroesse">
+                        <option value="25">25</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="200">200</option>
+                    </select>
+                </div>
+                <div class="csm-knoepfe">
+                    <button type="button" class="leise" id="btnNeu" aria-label="Reload the list">Refresh</button>
+                    <button type="button" class="haupt" id="btnZusammenfuehren" aria-label="Start a merge">Merge</button>
+                </div>
+            </div>
+
+            <div class="csm-hinweiszeile" id="hinweisLeiste"></div>
+            <p class="csm-meldung" id="zuordnungMeldung" role="status" aria-live="polite"></p>
+            <div class="csm-legende" id="legende" aria-label="Farblegende"></div>
+
+            <table class="csm-tabelle" id="bestandTabelle">
+                <thead>
+                <tr>
+                    <th scope="col" class="sortierbar" data-sort="name" aria-sort="none" style="width:23em">Source<span class="pfeil">&#8597;</span></th>
+                    <th scope="col" style="width:15em">Tag</th>
+                    <th scope="col" style="width:11em">Title, year</th>
+                    <th scope="col" class="sortierbar" data-sort="ziel" aria-sort="none" style="width:24em">Target name<span class="pfeil">&#8597;</span></th>
+                    <th scope="col" style="width:22em">Category</th>
+                    <th scope="col" style="width:6.5em"><span class="csm-sr">Aktion</span></th>
+                </tr>
+                </thead>
+                <tbody id="bestandBody"></tbody>
+            </table>
+
+            <div class="csm-blatt">
+                <span class="info" id="blattInfo"></span>
+                <button type="button" class="klein" id="btnErste" aria-label="First page">&laquo;</button>
+                <button type="button" class="klein" id="btnZurueck" aria-label="Previous page">&lsaquo;</button>
+                <span class="seite" id="blattSeite">Page 1 of 1</span>
+                <button type="button" class="klein" id="btnWeiter" aria-label="Next page">&rsaquo;</button>
+                <button type="button" class="klein" id="btnLetzte" aria-label="Last page">&raquo;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= Sources and categories ================= -->
+    <section class="csm-abschnitt" id="pane-quellen" data-tab="quellen" role="tabpanel" aria-labelledby="tab-quellen" hidden>
+
+        <div class="csm-karte">
+            <h3>Sources</h3>
+            <p class="csm-einleitung">
+                Every row is one folder. <b>Rank</b> decides which medium wins - lower number first;
+                it orders the sources and decides whose title and year name the folder. It does
+                not appear in file names (<code>Title (Year) [tmdbid-123] - 2 Stream.mkv</code>). The
+                <b>source tag</b> is the name an entry carries in the target tree - it must be unique
+                per media type and may repeat across movies and series (<code>3 NAS</code> in both trees). The
+                <b>default category</b> decides where a new entry from this folder goes. <b>Shadow</b>
+                means: entries of this source stay in place even while it is unreachable.
+            </p>
+            <div class="csm-tabelle-box">
+            <table class="csm-tabelle csm-quellen-tabelle">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:11%">Tag</th>
+                    <th scope="col" style="width:9%">Anbindung</th>
+                    <th scope="col" style="width:5em">Rank</th>
+                    <th scope="col">Quellordner</th>
+                    <th scope="col" style="width:12em">Standardkategorie</th>
+                    <th scope="col" style="width:5em">Shadow</th>
+                    <th scope="col" style="width:3em"><span class="csm-sr">Remove</span></th>
+                </tr>
+                </thead>
+                <tbody id="quellenBody"></tbody>
+            </table>
+            </div>
+            <button type="button" class="leise" id="btnQuelle" style="margin-top:.8em">Add source</button>
+        </div>
+
+        <div class="csm-karte">
+            <h3>Categories</h3>
+            <p class="csm-einleitung">
+                Categories are additional target folders in the same tree. <b>Pattern</b> maps titles automatically
+                whose title or source folder contains one of the words (semicolon separates them). There is
+                exactly one <b>standard</b> per media type - everything without its own category goes there.
+            </p>
+            <div class="csm-tabelle-box">
+            <table class="csm-tabelle csm-quellen-tabelle">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:14%">Name</th>
+                    <th scope="col">Zielpfad</th>
+                    <th scope="col" style="width:18%">Muster</th>
+                    <th scope="col" style="width:6em">Series</th>
+                    <th scope="col" style="width:6em">Standard</th>
+                    <th scope="col" style="width:3em"><span class="csm-sr">Remove</span></th>
+                </tr>
+                </thead>
+                <tbody id="kategorienBody"></tbody>
+            </table>
+            </div>
+            <button type="button" class="leise" id="btnKategorie" style="margin-top:.8em">Add category</button>
+        </div>
+
+        <div class="csm-speicher">
+            <button type="button" class="haupt" id="btnSpeichernQuellen">Save</button>
+            <button type="button" class="leise" id="btnVerwerfenQuellen">Verwerfen</button>
+            <span class="stand" id="standQuellen"></span>
+            <p class="csm-meldung" id="quellenMeldung" role="status" aria-live="polite"></p>
+        </div>
+    </section>
+
+    <!-- ================= Settings ================= -->
+    <!-- ================= Cleanup ================= -->
+    <section class="csm-abschnitt" id="pane-aufraeumen" data-tab="aufraeumen" role="tabpanel" aria-labelledby="tab-aufraeumen" hidden>
+
+        <div class="csm-karte">
+            <h3>Targets without a source</h3>
+            <p class="csm-einleitung">
+                What sits in the target tree but did not show up in the last plan: folders that no longer carry a title, and
+                files nobody needs any more - leftovers of an old naming rule, for instance. The comparison uses the
+                last run's list, not the sources; that is fast and spares the NAS. Entries are moved
+                to <code>&lt;target&gt;-alt/aufraeumen/&lt;date&gt;</code>, nothing is deleted.
+            </p>
+
+            <div class="csm-werkzeuge">
+                <div class="csm-knoepfe">
+                    <button type="button" class="leise" id="btnAltNeu" aria-label="Reload the list">Refresh</button>
+                    <button type="button" class="leise" id="btnAltWeg" aria-label="Remove the selected entries">Remove selected</button>
+                    <button type="button" class="haupt" id="btnAltAlle" aria-label="Remove all entries">Remove all</button>
+                </div>
+            </div>
+
+            <p class="csm-hinweiszeile" id="altStand"></p>
+            <p class="csm-meldung" id="altMeldung" role="status" aria-live="polite"></p>
+
+            <table class="csm-tabelle" id="altTabelle">
+                <thead>
+                <tr>
+                    <th scope="col" style="width:2.6em"><input type="checkbox" id="chkAltAlle" title="Select all" aria-label="Select all" /></th>
+                    <th scope="col" style="width:5em">Art</th>
+                    <th scope="col">Name</th>
+                    <th scope="col" style="width:20em">Category</th>
+                    <th scope="col" style="width:6em">Files</th>
+                    <th scope="col" style="width:7em">Size</th>
+                    <th scope="col" style="width:11em">Changed</th>
+                </tr>
+                </thead>
+                <tbody id="altBody"></tbody>
+            </table>
+            <p class="csm-hinweiszeile" id="altMehr" hidden></p>
+        </div>
+    </section>
+
+    <section class="csm-abschnitt" id="pane-einstellungen" data-tab="einstellungen" role="tabpanel" aria-labelledby="tab-einstellungen" hidden>
+
+        <div class="csm-karte">
+            <h3>Erkennung</h3>
+            <p class="csm-einleitung">
+                Title, year and id are read from the folder name, from <code>.nfo</code> files and
+                from the Jellyfin library. A key is only needed for titles that are unknown
+                everywhere - or for the list of missing mappings.
+            </p>
+
+            <div class="csm-feld-block">
+                <label for="txtTmdb">TMDB API key</label>
+                <input type="text" id="txtTmdb" autocomplete="off" spellcheck="false" placeholder="optional" />
+                <p class="csm-tipp">Without a key the lookups at TMDB, IMDB and TVDB stay off; everything else keeps working.</p>
+            </div>
+
+            <div class="csm-feld-block">
+                <label for="txtOmdb">OMDB API key</label>
+                <input type="text" id="txtOmdb" autocomplete="off" spellcheck="false" placeholder="optional" />
+                <p class="csm-tipp">Only needed for the OMDB provider. IMDB and TVDB ids are resolved through TMDB so the target folder carries an id Jellyfin understands.</p>
+            </div>
+
+            <div class="csm-feld-block">
+                <label for="txtSprache">Search language</label>
+                <input type="text" id="txtSprache" autocomplete="off" spellcheck="false" placeholder="leer = Sprache des Servers, z. B. de-DE" />
+                <p class="csm-tipp">Left empty means: titles and descriptions in the language the Jellyfin server is set to. A value such as <code>en-US</code> overrides that.</p>
+            </div>
+        </div>
+
+        <div class="csm-karte">
+            <h3>Schreiben</h3>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkNfo" />
+                <div>
+                    <b>Create missing NFO files</b>
+                    <span>An <code>.nfo</code> with title, year and TMDB id. Jellyfin recognises the title with it, even without an online lookup.</span>
+                </div>
+            </label>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkNfoJahr" />
+                <div>
+                    <b>Correct the year in existing NFO files</b>
+                    <span>Only when it holds a TMDB id that was read as a year - for example <i>Training Day</i> with tmdbid 2034, which is tracked as the year 2034. Years you set yourself stay untouched.</span>
+                </div>
+            </label>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkAufraeumen" />
+                <div>
+                    <b>Clean up orphaned folders in the target tree</b>
+                    <span>Moves folders that are no longer in the plan to <code>alt</code>. Off by default: otherwise every rename leaves thousands of entries behind.</span>
+                </div>
+            </label>
+
+            <div class="csm-feld-block schmal csm-unterfeld">
+                <label for="txtAltTage">Remove orphaned targets after … days</label>
+                <input type="number" id="txtAltTage" min="0" step="1" inputmode="numeric" />
+                <p class="csm-tipp">Only applies when "clean up orphaned folders" is on: fresh leftovers stay for a while so a short outage does not tear anything down. 0 means immediately. By hand it always works in the <i>Cleanup</i> tab.</p>
+            </div>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkFremd" />
+                <div>
+                    <b>Kill foreign merge processes at startup and before every run</b>
+                    <span>So that only one program writes into the target tree. Affects <code>merge_sync.py</code> and <code>merge_guard.py</code>.</span>
+                </div>
+            </label>
+        </div>
+
+        <div class="csm-karte">
+            <h3>Run</h3>
+
+            <div class="csm-feld-block schmal">
+                <label for="txtIntervall">Run automatically every … minutes</label>
+                <input type="number" id="txtIntervall" min="0" step="1" inputmode="numeric" />
+                <p class="csm-tipp">0 turns the timer off; runs then start by hand or at server startup.</p>
+            </div>
+
+            <div class="csm-feld-block schmal">
+                <label for="txtPruef">Check sources every … minutes</label>
+                <input type="number" id="txtPruef" min="0" step="1" inputmode="numeric" />
+                <p class="csm-tipp">A separate, short cycle only for the question "is the source there?". When a NAS comes back, the merge runs at once - the shadow copy does not have to wait for the next big interval. 0 turns the check off.</p>
+            </div>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkBeimStart" />
+                <div>
+                    <b>Beim Serverstart einmal durchlaufen</b>
+                    <span>Useful when the target tree changed between two starts.</span>
+                </div>
+            </label>
+
+            <label class="csm-schalter">
+                <input type="checkbox" id="chkNurPlanen" />
+                <div>
+                    <b>Dry run, write nothing</b>
+                    <span>For trying out a new setting. The report shows what would happen.</span>
+                </div>
+            </label>
+
+            <div class="csm-feld-block schmal">
+                <label for="txtSicherungen">Sicherungen aufheben</label>
+                <input type="number" id="txtSicherungen" min="0" step="1" inputmode="numeric" />
+                <p class="csm-tipp">Older state files are deleted on the next run. 0 keeps no backup at all.</p>
+            </div>
+        </div>
+
+        <div class="csm-speicher">
+            <button type="button" class="haupt" id="btnSpeichernEinstellungen">Save</button>
+            <button type="button" class="leise" id="btnVerwerfenEinstellungen">Verwerfen</button>
+            <span class="stand" id="standEinstellungen"></span>
+            <p class="csm-meldung" id="einstellungenMeldung" role="status" aria-live="polite"></p>
+        </div>
+    </section>
+<script type="text/javascript">
+    (function () {
+        'use strict';
+
+        var pluginId = '6f1c8b52-7d43-4a6e-9c31-2b5e0d7a4f18';
+        var pluginBasis = 'Plugins/CrossSourceMerge';
+        var cfg = null;
+        var alleKategorien = [];
+        var blatt = { art: 'alle', quelle: 'alle', status: 'offen', suche: '', kategorie: '', sort: 'name', richtung: 'auf', seite: 1, groesse: 50, seiten: 1 };
+        var laufBeobachtet = false;
+        var zeige = { offen: 0, gesamt: 0 };
+
+        function feld(id) { return document.querySelector('#' + id); }
+
+        function meldung(id, text, art) {
+            var el = feld(id);
+            if (!el) { return; }
+            el.textContent = text || '';
+            el.className = 'csm-meldung' + (art ? ' ' + art : '');
+        }
+
+        function zahl(n) {
+            // Deutsche Trennzeichen: 80.054 statt 80054.
+            try { return Number(n || 0).toLocaleString('de-DE'); } catch (e) { return String(n); }
+        }
+
+        function vorZeit(iso) {
+            if (!iso) { return ''; }
+            var ms = Date.now() - new Date(iso).getTime();
+            if (isNaN(ms)) { return ''; }
+            var min = Math.round(ms / 60000);
+            if (min < 1) { return 'gerade eben'; }
+            if (min < 60) { return min + (min === 1 ? ' minute ago' : ' minutes ago'); }
+            var std = Math.round(min / 60);
+            if (std < 24) { return std + (std === 1 ? ' hour ago' : ' hours ago'); }
+            var tag = Math.round(std / 24);
+            if (tag < 31) { return tag + (tag === 1 ? ' day ago' : ' days ago'); }
+            return new Date(iso).toLocaleDateString('de-DE');
+        }
+
+        function ausUhr(iso) {
+            if (!iso) { return '?'; }
+            try {
+                return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) { return '?'; }
+        }
+
+        function uhrzeit(iso) {
+            if (!iso) { return ''; }
+            try {
+                return new Date(iso).toLocaleString('de-DE', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            } catch (e) { return ''; }
+        }
+
+        function api(pfad, abfrage, methode, koerper) {
+            var url = ApiClient.getUrl(pluginBasis + '/' + pfad, abfrage || null);
+            return ApiClient.ajax({
+                type: methode || 'GET',
+                url: url,
+                data: koerper === undefined ? undefined : JSON.stringify(koerper),
+                contentType: 'application/json',
+                dataType: 'json'
+            });
+        }
+
+        // ---------- Reiter ----------
+        function tabZeigen(name) {
+            document.querySelectorAll('.csm-tab').forEach(function (b) {
+                var an = b.getAttribute('data-tab') === name;
+                b.classList.toggle('aktiv', an);
+                b.setAttribute('aria-selected', an ? 'true' : 'false');
+                b.tabIndex = an ? 0 : -1;
+            });
+            document.querySelectorAll('.csm-abschnitt').forEach(function (a) {
+                a.hidden = a.getAttribute('data-tab') !== name;
+            });
+            if (name === 'zuordnungen') {
+                bestandLaden(blatt.seite);
+            }
+            if (name === 'aufraeumen' && !altGeladen) {
+                altLaden();
+            }
+        }
+
+        document.querySelectorAll('.csm-tab').forEach(function (b) {
+            b.addEventListener('click', function () { tabZeigen(b.getAttribute('data-tab')); });
+            b.addEventListener('keydown', function (e) {
+                // arrow keys, as in every tab strip.
+                var liste = Array.prototype.slice.call(document.querySelectorAll('.csm-tab'));
+                var i = liste.indexOf(b);
+                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    var ziel = liste[(i + (e.key === 'ArrowRight' ? 1 : liste.length - 1)) % liste.length];
+                    ziel.focus();
+                    tabZeigen(ziel.getAttribute('data-tab'));
+                }
+            });
+        });
+
+        // ---------- Ungespeicherte Aenderungen ----------
+        var schmutzig = { quellen: false, einstellungen: false };
+
+        function standZeigen(wo) {
+            var el = feld(wo === 'quellen' ? 'standQuellen' : 'standEinstellungen');
+            if (!el) { return; }
+            el.textContent = schmutzig[wo] ? 'Unsaved changes' : '';
+            el.className = 'stand' + (schmutzig[wo] ? ' geaendert' : '');
+        }
+
+        function schmutzigSetzen(wo) {
+            if (schmutzig[wo]) { return; }
+            schmutzig[wo] = true;
+            standZeigen(wo);
+        }
+
+        document.querySelectorAll('#pane-quellen input, #pane-quellen select').forEach(function (el) {
+            el.addEventListener('input', function () { schmutzigSetzen('quellen'); });
+            el.addEventListener('change', function () { schmutzigSetzen('quellen'); });
+        });
+        document.querySelectorAll('#pane-einstellungen input, #pane-einstellungen select').forEach(function (el) {
+            el.addEventListener('input', function () { schmutzigSetzen('einstellungen'); });
+            el.addEventListener('change', function () { schmutzigSetzen('einstellungen'); });
+        });
+
+        window.addEventListener('beforeunload', function (e) {
+            if (schmutzig.quellen || schmutzig.einstellungen) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        // ---------- Konfiguration ----------
+        function zeilenEingabe(klasse, art, platzhalter, wert) {
+            var el = document.createElement('input');
+            el.type = art === 'number' ? 'number' : 'text';
+            if (art === 'number') { el.min = '0'; el.inputMode = 'numeric'; }
+            el.className = klasse;
+            if (platzhalter) { el.placeholder = platzhalter; }
+            if (wert !== undefined && wert !== null) { el.value = wert; }
+            return el;
+        }
+
+        function quellenZeile(q) {
+            var tr = document.createElement('tr');
+            function spalte(inhalt, klasse) {
+                var td = document.createElement('td');
+                if (klasse) { td.className = klasse; }
+                td.appendChild(inhalt);
+                tr.appendChild(td);
+                return td;
+            }
+
+            var kennung = zeilenEingabe('q-kennung', 'text', '1 Local', q.Kennung || '');
+            kennung.setAttribute('aria-label', 'source tag');
+            spalte(kennung);
+
+            var art = document.createElement('select');
+            art.className = 'q-art';
+            art.setAttribute('aria-label', 'Anbindung');
+            [['Lokal', 'Lokal'], ['Stream', 'Stream'], ['Nas', 'NAS']].forEach(function (p) {
+                var o = document.createElement('option');
+                o.value = p[0]; o.textContent = p[1];
+                art.appendChild(o);
+            });
+            art.value = q.Art || 'Lokal';
+            spalte(art);
+
+            var rang = zeilenEingabe('q-rang', 'number', '50', q.Rang === undefined ? 50 : q.Rang);
+            rang.setAttribute('aria-label', 'rank');
+            spalte(rang);
+
+            var pfadFeld = zeilenEingabe('q-pfad', 'text', '/media/source/movies', q.Pfad || '');
+            pfadFeld.setAttribute('aria-label', 'Quellordner');
+            spalte(pfadFeld);
+
+            var standard = document.createElement('select');
+            standard.className = 'q-standard';
+            standard.setAttribute('aria-label', 'default category of this source');
+            var leer = document.createElement('option');
+            leer.value = ''; leer.textContent = 'automatisch';
+            standard.appendChild(leer);
+            (alleKategorien || []).forEach(function (name) {
+                var o = document.createElement('option');
+                o.value = name; o.textContent = name;
+                standard.appendChild(o);
+            });
+            standard.value = q.StandardKategorie || '';
+            spalte(standard);
+
+            var schatten = document.createElement('input');
+            schatten.type = 'checkbox'; schatten.className = 'q-schatten';
+            schatten.title = 'entries stay in place when this source is missing';
+            schatten.checked = !!q.Schatten;
+            spalte(schatten);
+
+            var weg = document.createElement('button');
+            weg.type = 'button'; weg.className = 'weg'; weg.innerHTML = '&times;';
+            weg.title = 'Remove source';
+            weg.setAttribute('aria-label', 'Remove source');
+            weg.addEventListener('click', function () {
+                var name = kennung.value.trim();
+                var gefuellt = name || pfadFeld.value.trim();
+                if (gefuellt && !window.confirm('Remove source "' + (name || gefuellt) + '"?\nThe change is only stored when you press "Save".')) {
+                    return;
+                }
+                tr.remove();
+                schmutzigSetzen('quellen');
+            });
+            spalte(weg);
+
+            return tr;
+        }
+
+        function katZeile(k) {
+            var tr = document.createElement('tr');
+            function spalte(inhalt) {
+                var td = document.createElement('td');
+                td.appendChild(inhalt);
+                tr.appendChild(td);
+                return inhalt;
+            }
+
+            var name = zeilenEingabe('k-name', 'text', 'Dokumentationen', k.Name || '');
+            name.setAttribute('aria-label', 'category name');
+            spalte(name);
+
+            var pfad = zeilenEingabe('k-pfad', 'text', '/media/documentaries', k.Zielpfad || '');
+            pfad.setAttribute('aria-label', 'target path');
+            spalte(pfad);
+
+            var muster = zeilenEingabe('k-muster', 'text', 'Doku;Dokumentation', k.Muster || '');
+            muster.title = 'title or source folder contains one of these words (semicolon separates them)';
+            muster.setAttribute('aria-label', 'Muster');
+            spalte(muster);
+
+            var folgen = document.createElement('input');
+            folgen.type = 'checkbox'; folgen.className = 'k-folgen';
+            folgen.title = 'category holds episodes (S01E01)';
+            folgen.setAttribute('aria-label', 'holds episodes');
+            folgen.checked = !!k.IstSerie;
+            spalte(folgen);
+
+            var std = document.createElement('input');
+            std.type = 'checkbox'; std.className = 'k-std';
+            std.title = 'titles without their own mapping land here';
+            std.setAttribute('aria-label', 'is standard');
+            std.checked = !!k.Standard;
+            // Only one standard per media type - otherwise the engine
+            // silently takes the first entry.
+            std.addEventListener('change', function () {
+                if (!std.checked) { return; }
+                var serie = folgen.checked;
+                document.querySelectorAll('#kategorienBody tr').forEach(function (andere) {
+                    if (andere === tr) { return; }
+                    var f = andere.querySelector('.k-folgen');
+                    var s2 = andere.querySelector('.k-std');
+                    if (f && s2 && f.checked === serie) { s2.checked = false; }
+                });
+            });
+            folgen.addEventListener('change', function () {
+                // media type switched: the standard now applies to the other side.
+                if (std.checked) { std.checked = false; std.dispatchEvent(new Event('change')); }
+            });
+            spalte(std);
+
+            var weg = document.createElement('button');
+            weg.type = 'button'; weg.className = 'weg'; weg.innerHTML = '&times;';
+            weg.title = 'Remove category';
+            weg.setAttribute('aria-label', 'Remove category');
+            weg.addEventListener('click', function () {
+                var bezeichnung = name.value.trim() || pfad.value.trim();
+                if (bezeichnung && !window.confirm('Remove category "' + bezeichnung + '"?\nThe change is only stored when you press "Save".')) {
+                    return;
+                }
+                tr.remove();
+                schmutzigSetzen('quellen');
+            });
+            spalte(weg);
+
+            return tr;
+        }
+
+        function leereZeile(koerper, spalten, text) {
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            td.className = 'leer';
+            td.colSpan = spalten;
+            td.textContent = text;
+            tr.appendChild(td);
+            koerper.appendChild(tr);
+        }
+
+        function konfigurationZeigen(c) {
+            cfg = c;
+
+            // Category names first, so the default category dropdown of the
+            // sources already has its entries.
+            alleKategorien = (c.Kategorien || [])
+                .map(function (k) { return k.Name; })
+                .filter(function (n) { return !!n; });
+
+            var qb = feld('quellenBody');
+            qb.innerHTML = '';
+            var quellen = c.Quellen || [];
+            if (!quellen.length) {
+                leereZeile(qb, 7, 'No source yet. Without a source there is nothing to merge.');
+            } else {
+                quellen.forEach(function (q) { qb.appendChild(quellenZeile(q)); });
+            }
+
+            var kb = feld('kategorienBody');
+            kb.innerHTML = '';
+            var kats = c.Kategorien || [];
+            if (!kats.length) {
+                leereZeile(kb, 6, 'No category yet. Without a category there is no target folder.');
+            } else {
+                kats.forEach(function (k) { kb.appendChild(katZeile(k)); });
+            }
+
+            // Fill the source filter of the title list from the configuration.
+            var qFeld = feld('selQuelle');
+            if (qFeld) {
+                Array.prototype.slice.call(qFeld.querySelectorAll('option')).forEach(function (o) {
+                    if (o.value !== 'alle') { o.remove(); }
+                });
+                (c.Quellen || []).forEach(function (q) {
+                    if (!q.Kennung) { return; }
+                    var o = document.createElement('option');
+                    o.value = q.Kennung;
+                    o.textContent = q.Kennung;
+                    qFeld.appendChild(o);
+                });
+                blatt.quelle = 'alle';
+                qFeld.value = 'alle';
+            }
+
+            feld('txtTmdb').value = c.TmdbSchluessel || '';
+            feld('txtOmdb').value = c.OmdbSchluessel || '';
+            feld('txtSprache').value = c.TmdbSprache || '';
+            feld('txtIntervall').value = c.IntervallMinuten || 0;
+            feld('txtPruef').value = c.PruefIntervallMinuten === undefined ? 5 : c.PruefIntervallMinuten;
+            feld('txtAltTage').value = c.AufraeumenTage === undefined ? 30 : c.AufraeumenTage;
+            feld('txtSicherungen').value = c.SicherungenBehalten === undefined ? 20 : c.SicherungenBehalten;
+            feld('chkNfo').checked = c.NfoSchreiben !== false;
+            feld('chkNfoJahr').checked = c.NfoJahrKorrigieren !== false;
+            feld('chkAufraeumen').checked = !!c.Aufraeumen;
+            feld('chkFremd').checked = c.FremdeProzesseBeenden !== false;
+            feld('chkNurPlanen').checked = c.NurPlanen !== false;
+            feld('chkBeimStart').checked = !!c.BeimStart;
+
+            schmutzig.quellen = false;
+            schmutzig.einstellungen = false;
+            standZeigen('quellen');
+            standZeigen('einstellungen');
+            planHinweisZeigen();
+        }
+
+        function planHinweisZeigen() {
+            var kasten = feld('planHinweis');
+            if (kasten) { kasten.hidden = !feld('chkNurPlanen').checked; }
+        }
+
+        function sammeln() {
+            // Copy: on failure the page must not be left half
+            // gespeicherte Werte weiterreichen.
+            var c = JSON.parse(JSON.stringify(cfg || {}));
+            var fehler = [];
+            c.Quellen = [];
+            document.querySelectorAll('#quellenBody tr').forEach(function (tr) {
+                var kennungFeld = tr.querySelector('.q-kennung');
+                if (!kennungFeld) { return; }
+                var kennung = kennungFeld.value.trim();
+                var pfad = tr.querySelector('.q-pfad').value.trim();
+                if (!kennung && !pfad) { return; }
+                if (!kennung) {
+                    fehler.push('Source without a tag (' + pfad + ')');
+                    tr.className = 'csm-fehlerzeile';
+                    return;
+                }
+                if (!pfad) {
+                    fehler.push('Source "' + kennung + '" has no folder');
+                    tr.className = 'csm-fehlerzeile';
+                    return;
+                }
+                tr.className = '';
+                var rang = parseInt(tr.querySelector('.q-rang').value, 10);
+                c.Quellen.push({
+                    Kennung: kennung,
+                    Art: tr.querySelector('.q-art').value,
+                    Rang: isNaN(rang) ? 50 : rang,
+                    Pfad: pfad,
+                    StandardKategorie: tr.querySelector('.q-standard').value,
+                    Schatten: tr.querySelector('.q-schatten').checked
+                });
+            });
+
+            // Tag and rank must be unique: the tag appears in file
+            // names, the rank decides the order. The tag only counts
+            // per media type - "3 NAS" for movies and "3 NAS" for
+            // series is fine because the trees are separate.
+            var artJeKategorie = {};
+            document.querySelectorAll('#kategorienBody tr').forEach(function (tr) {
+                var n = tr.querySelector('.k-name');
+                var f = tr.querySelector('.k-folgen');
+                if (n && n.value.trim()) {
+                    artJeKategorie[n.value.trim().toLowerCase()] = !!(f && f.checked);
+                }
+            });
+            var genutzt = {};
+            c.Quellen.forEach(function (q) {
+                var art = artJeKategorie[(q.StandardKategorie || '').trim().toLowerCase()];
+                var schluessel = q.Kennung.toLowerCase();
+                if (!genutzt[schluessel]) {
+                    genutzt[schluessel] = { name: q.Kennung, filme: 0, serien: 0 };
+                }
+                if (art === undefined || art === false) { genutzt[schluessel].filme += 1; }
+                if (art === undefined || art === true) { genutzt[schluessel].serien += 1; }
+            });
+            Object.keys(genutzt).forEach(function (k) {
+                var g = genutzt[k];
+                if (g.filme > 1) {
+                    fehler.push('Source tag "' + g.name + '" is duplicated for movies');
+                }
+                if (g.serien > 1) {
+                    fehler.push('Source tag "' + g.name + '" is duplicated for series');
+                }
+            });
+            var raenge = {};
+            c.Quellen.forEach(function (q) {
+                if (raenge[q.Rang]) {
+                    fehler.push('Rank ' + q.Rang + ' is duplicated (' + raenge[q.Rang] + ' and ' + q.Kennung + ')');
+                } else {
+                    raenge[q.Rang] = q.Kennung;
+                }
+            });
+
+            c.Kategorien = [];
+            document.querySelectorAll('#kategorienBody tr').forEach(function (tr) {
+                var nameFeld = tr.querySelector('.k-name');
+                if (!nameFeld) { return; }
+                var name = nameFeld.value.trim();
+                var pfad = tr.querySelector('.k-pfad').value.trim();
+                if (!name && !pfad) { return; }
+                if (!name) {
+                    fehler.push('Category without a name (' + pfad + ')');
+                    tr.className = 'csm-fehlerzeile';
+                    return;
+                }
+                if (!pfad) {
+                    fehler.push('Category "' + name + '" has no target path');
+                    tr.className = 'csm-fehlerzeile';
+                    return;
+                }
+                tr.className = '';
+                c.Kategorien.push({
+                    Name: name,
+                    IstSerie: tr.querySelector('.k-folgen').checked,
+                    Zielpfad: pfad,
+                    Muster: tr.querySelector('.k-muster').value.trim(),
+                    Standard: tr.querySelector('.k-std').checked
+                });
+            });
+
+            c.TmdbSchluessel = feld('txtTmdb').value.trim();
+            c.OmdbSchluessel = feld('txtOmdb').value.trim();
+            c.TmdbSprache = feld('txtSprache').value.trim();
+            c.IntervallMinuten = parseInt(feld('txtIntervall').value, 10) || 0;
+            var pruef = parseInt(feld('txtPruef').value, 10);
+            c.PruefIntervallMinuten = isNaN(pruef) ? 0 : pruef;
+            var altTage = parseInt(feld('txtAltTage').value, 10);
+            c.AufraeumenTage = isNaN(altTage) ? 0 : altTage;
+            c.SicherungenBehalten = parseInt(feld('txtSicherungen').value, 10) || 0;
+            c.NfoSchreiben = feld('chkNfo').checked;
+            c.NfoJahrKorrigieren = feld('chkNfoJahr').checked;
+            c.Aufraeumen = feld('chkAufraeumen').checked;
+            c.FremdeProzesseBeenden = feld('chkFremd').checked;
+            c.NurPlanen = feld('chkNurPlanen').checked;
+            c.BeimStart = feld('chkBeimStart').checked;
+
+            if (fehler.length) {
+                return { fehler: fehler };
+            }
+            return c;
+        }
+
+        function speichern(wo) {
+            var c = sammeln();
+            if (c.fehler) {
+                meldung(wo, 'Not saved - ' + c.fehler.join(' · '), 'bad');
+                return;
+            }
+            meldung(wo, 'Saving ...');
+            ApiClient.updatePluginConfiguration(pluginId, c).then(function (ergebnis) {
+                // The endpoint answers 204 without content - reading
+                // ergebnis.data here used to abort the call before
+                // "Saved." appeared.
+                var neu = ergebnis && ergebnis.data && ergebnis.data.Quellen ? ergebnis.data : null;
+                if (neu) {
+                    konfigurationZeigen(neu);
+                } else {
+                    ApiClient.getPluginConfiguration(pluginId).then(konfigurationZeigen);
+                }
+                meldung(wo, 'Saved.', 'ok');
+                statusLaden();
+            }, function () {
+                meldung(wo, 'Saving failed.', 'bad');
+            });
+        }
+
+        // ---------- Status ----------
+        function wert(obj) {
+            if (!obj) { return undefined; }
+            for (var i = 1; i < arguments.length; i++) {
+                if (obj[arguments[i]] !== undefined) { return obj[arguments[i]]; }
+            }
+            return undefined;
+        }
+
+        function zahlenKacheln(teile) {
+            var box = feld('statusZahlen');
+            box.innerHTML = '';
+            teile.forEach(function (t) {
+                var d = document.createElement('div');
+                d.className = 'csm-zahl-block';
+                var b = document.createElement('b');
+                b.textContent = t.wert;
+                var s = document.createElement('span');
+                s.textContent = t.name;
+                d.appendChild(b);
+                d.appendChild(s);
+                box.appendChild(d);
+            });
+        }
+
+        function statusZeigen(st) {
+            var box = feld('statusBox');
+            var warnung = wert(st, 'warnung', 'Warnung');
+            var ergebnis = wert(st, 'ergebnis', 'Ergebnis');
+            var laeuft = !!wert(st, 'laeuft', 'Laeuft');
+            var ende = wert(st, 'letztesEnde', 'LetztesEnde');
+            var dauer = wert(st, 'dauer', 'Dauer');
+
+            var kastenWarnung = feld('statusWarnung');
+            kastenWarnung.hidden = !warnung;
+            if (warnung) { kastenWarnung.textContent = warnung; }
+
+            var balken = feld('statusBalken');
+            var fuell = feld('statusFuell');
+            var start = wert(st, 'letzterStart', 'LetzterStart');
+            var knoepfe = [feld('btnLauf'), feld('btnZusammenfuehren')];
+            if (laeuft) {
+                var prozent = Math.max(0, Math.min(100, Number(wert(st, 'fortschritt', 'Fortschritt') || 0)));
+                balken.hidden = false;
+                fuell.style.width = prozent + '%';
+                feld('statusTitel').textContent = 'Running' + (wert(st, 'phase', 'Phase') ? ' - ' + wert(st, 'phase', 'Phase') : '');
+                feld('statusZeit').textContent = prozent + ' % · started ' + (vorZeit(start || ende) || 'just now');
+                box.setAttribute('data-lage', 'laeuft');
+
+                // A second run would only be rejected. After 90 minutes an
+                // entry counts as stuck - then the button stays open, just
+                // like the rule on the server.
+                var verklemmt = start && (Date.now() - new Date(start).getTime()) > 90 * 60000;
+                knoepfe.forEach(function (k) {
+                    if (!k) { return; }
+                    k.disabled = !verklemmt;
+                    if (!verklemmt) { k.title = 'A run has been going since ' + ausUhr(start); }
+                    else { k.title = 'The last run has been stuck for over 90 minutes - a new one is allowed.'; }
+                });
+            } else {
+                knoepfe.forEach(function (k) {
+                    if (!k) { return; }
+                    k.disabled = false;
+                    k.title = '';
+                });
+                balken.hidden = true;
+                fuell.style.width = '0';
+                if (!ergebnis || ergebnis === 'unbekannt') {
+                    feld('statusTitel').textContent = 'No run yet';
+                    feld('statusZeit').textContent = 'As soon as the timer fires or you start a run, the numbers appear here.';
+                    box.setAttribute('data-lage', 'neutral');
+                } else {
+                    var schlecht = wert(st, 'fehler', 'Fehler');
+                    feld('statusTitel').textContent = schlecht ? 'Run finished with errors' : (warnung ? 'Run finished with a warning' : 'Done');
+                    var teile = [];
+                    if (ende) { teile.push('Last run ' + vorZeit(ende)); }
+                    if (dauer) {
+                        // 11.9 s must not be shown as "11,9 s". Do not rely on
+                        // toLocaleString: without locale data in the browser it
+                        // falls back to the dot anyway.
+                        var sek = Math.round(Number(dauer) * 10) / 10;
+                        teile.push(String(sek) + ' s');
+                    }
+                    feld('statusZeit').textContent = teile.join(' · ');
+                    box.setAttribute('data-lage', schlecht ? 'fehler' : (warnung ? 'warnung' : 'gut'));
+                }
+            }
+            if (ende) { feld('statusZeit').title = uhrzeit(ende); }
+
+            var kacheln = [];
+            var g = wert(st, 'gesetzt', 'Gesetzt');
+            var u = wert(st, 'unveraendert', 'Unveraendert');
+            var f = wert(st, 'fehler', 'Fehler');
+            if (g !== undefined) { kacheln.push({ name: 'newly set', wert: zahl(g) }); }
+            if (u !== undefined) { kacheln.push({ name: 'unchanged', wert: zahl(u) }); }
+            if (f !== undefined) { kacheln.push({ name: 'errors', wert: zahl(f) }); }
+            zahlenKacheln(kacheln);
+
+            // The server sends a short message per run. If tiles are
+            // already there it would repeat them - then it is left out
+            // and only its full wording hangs on the row as a title.
+            var statusText = wert(st, 'meldung', 'Meldung');
+            var kurz = feld('statusMeldung');
+            if (kurz) {
+                var doppelt = !!kacheln.length;
+                kurz.textContent = doppelt ? '' : (statusText || '');
+                kurz.title = doppelt ? (statusText || '') : '';
+            }
+        }
+
+        function statusLaden() {
+            return api('Status').then(function (st) {
+                statusZeigen(st);
+                var i = wert(st, 'intervall', 'Intervall');
+                if (i !== undefined && document.activeElement !== feld('txtIntervall')) {
+                    feld('txtIntervall').value = i;
+                }
+                if (wert(st, 'laeuft', 'Laeuft') && !laufBeobachtet) {
+                    laufBeobachtet = true;
+                    beobachten();
+                }
+            }, function () { /* egal */ });
+        }
+
+        function beobachten() {
+            var versuche = 0;
+            var takt = setInterval(function () {
+                versuche++;
+                api('Status').then(function (st) {
+                    statusZeigen(st);
+                    if (!wert(st, 'laeuft', 'Laeuft') || versuche > 240) {
+                        clearInterval(takt);
+                        laufBeobachtet = false;
+                        bestandLaden(blatt.seite);
+                    }
+                }, function () {
+                    clearInterval(takt);
+                    laufBeobachtet = false;
+                });
+            }, 3000);
+        }
+
+        function sicherungenLaden() {
+            return api('Sicherungen').then(function (liste) {
+                var koerper = feld('sicherungenBody');
+                koerper.innerHTML = '';
+                var eintraege = wert(liste, 'eintraege', 'Eintraege') || [];
+                if (!eintraege.length) {
+                    leereZeile(koerper, 4, 'No backup yet.');
+                    return;
+                }
+                eintraege.forEach(function (s) {
+                    var tr = document.createElement('tr');
+                    var name = wert(s, 'name', 'Name');
+                    var zeit = wert(s, 'zeit', 'Zeit');
+                    var groesse = wert(s, 'groesse', 'Groesse');
+
+                    var tdZeit = document.createElement('td');
+                    tdZeit.textContent = zeit ? vorZeit(zeit) : '';
+                    if (zeit) { tdZeit.title = uhrzeit(zeit); }
+                    tr.appendChild(tdZeit);
+
+                    var tdGroesse = document.createElement('td');
+                    tdGroesse.style.fontVariantNumeric = 'tabular-nums';
+                    tdGroesse.textContent = groesse === undefined ? '' : Math.round(groesse / 1024) + ' KB';
+                    tr.appendChild(tdGroesse);
+
+                    var tdName = document.createElement('td');
+                    tdName.textContent = name || '';
+                    tdName.style.fontFamily = 'ui-monospace, Menlo, Consolas, monospace';
+                    tdName.style.fontSize = '.78em';
+                    tdName.style.opacity = '.6';
+                    tdName.style.whiteSpace = 'nowrap';
+                    tr.appendChild(tdName);
+
+                    var tdA = document.createElement('td');
+                    var b = document.createElement('button');
+                    b.type = 'button'; b.className = 'klein leise';
+                    b.textContent = 'Restore';
+                    b.addEventListener('click', function () {
+                        if (!window.confirm('Restore the state from "' + name + '"?')) { return; }
+                        b.disabled = true;
+                        api('Sicherung/Zurueck', null, 'POST', { Name: name }).then(function () {
+                            b.disabled = false;
+                            meldung('laufMeldung', 'Restored.', 'ok');
+                            statusLaden();
+                            bestandLaden(1);
+                        }, function () {
+                            b.disabled = false;
+                            meldung('laufMeldung', 'Restore failed.', 'bad');
+                        });
+                    });
+                    tdA.appendChild(b);
+                    tr.appendChild(tdA);
+
+                    koerper.appendChild(tr);
+                });
+            }, function () { /* egal */ });
+        }
+
+        // ---------- Bestandsliste ----------
+        function marke(text, art) {
+            var s = document.createElement('span');
+            s.className = 'csm-marke' + (art ? ' ' + art : '');
+            s.textContent = text;
+            return s;
+        }
+
+        function zielVorschau(titel, jahr, tmdbId) {
+            if (!titel) { return ''; }
+            if (!tmdbId) { return jahr ? titel + ' (' + jahr + ')' : titel; }
+            var zahlId = parseInt(tmdbId, 10);
+            var falle = /^\d{4}$/.test(tmdbId) && zahlId >= 1900 && zahlId <= 2099;
+            if (!jahr) { return titel + ' [tmdbid-' + tmdbId + ']'; }
+            return falle
+                ? titel + ' [tmdbid-' + tmdbId + '] (' + jahr + ')'
+                : titel + ' (' + jahr + ') [tmdbid-' + tmdbId + ']';
+        }
+
+        // A fixed color per name: the same source, the same category always
+        // gets the same dot in table and legend. The index comes from the
+        // name, so the mapping does not change with the page number.
+        var farben = ['#5a9fd4', '#d4a72c', '#8fb03e', '#d1745a',
+                      '#9b7cc4', '#3fa8a0', '#c973a2', '#8b9aa8'];
+
+        function farbe(name, versatz) {
+            var i = versatz || 0;
+            var text = String(name || '');
+            for (var k = 0; k < text.length; k++) {
+                i = (i * 31 + text.charCodeAt(k)) % 100003;
+            }
+            return farben[i % farben.length];
+        }
+
+        // Sources have their own palette: otherwise "Movies" would carry the
+        // same color as "1 Local".
+        var farbenQuelle = ['#8a7ad4', '#e0954a', '#4aa9a0', '#b8779c'];
+
+        function farbeQuelle(name) {
+            var i = 0;
+            var text = String(name || '');
+            for (var k = 0; k < text.length; k++) {
+                i = (i * 31 + text.charCodeAt(k)) % 100003;
+            }
+            return farbenQuelle[i % farbenQuelle.length];
+        }
+
+        function punkt(name, quelle) {
+            var i = document.createElement('i');
+            i.style.setProperty('--csm-farbe', quelle ? farbeQuelle(name) : farbe(name));
+            i.setAttribute('aria-hidden', 'true');
+            return i;
+        }
+
+        function legendeBauen(quellen, kategorien, fremde) {
+            var feld_ = feld('legende');
+            if (!feld_) { return; }
+            feld_.innerHTML = '';
+
+            function gruppe(titel, namen, fremd) {
+                if (!namen || !namen.length) { return; }
+                var b = document.createElement('b');
+                b.textContent = titel;
+                feld_.appendChild(b);
+                namen.forEach(function (name) {
+                    var sp = document.createElement('span');
+                    sp.appendChild(punkt(name, titel === 'Sources:'));
+                    sp.appendChild(document.createTextNode(name));
+                    if (fremd) { sp.title = 'category of the other media type'; }
+                    feld_.appendChild(sp);
+                });
+            }
+
+            gruppe('Sources:', quellen);
+            gruppe('Categories:', kategorien);
+            gruppe('', fremde, true);
+        }
+
+        function bestandZeile(z) {
+            var tr = document.createElement('tr');
+            if (z.fehlt) { tr.className = 'versteckt'; tr.hidden = true; }
+
+            function zelle(inhalt, klasse, label) {
+                var td = document.createElement('td');
+                if (klasse) { td.className = klasse; }
+                // On narrow screens data-label replaces the table heading.
+                if (label) { td.setAttribute('data-label', label); }
+                if (inhalt instanceof Node) { td.appendChild(inhalt); }
+                else { td.textContent = inhalt === null || inhalt === undefined ? '' : inhalt; }
+                tr.appendChild(td);
+                return td;
+            }
+
+            // Title: folder name, below it the path or its origin
+            var werkBox = document.createElement('div');
+            var werkName = document.createElement('b');
+            werkName.textContent = z.ordner || '–';
+            werkBox.appendChild(werkName);
+            var werkZusatz = document.createElement('span');
+            werkZusatz.textContent = z.pfad || z.datei || '';
+            if (werkZusatz.textContent) { werkZusatz.title = werkZusatz.textContent; }
+            werkBox.appendChild(werkZusatz);
+            // The source no longer has a column of its own: it hangs on the
+            // title name as a colored badge, with the same color as in the
+            // Legende.
+            var quellZeile = document.createElement('div');
+            quellZeile.className = 'csm-quelle-zeile';
+            String(z.quelle || '').split(',').map(function (t) { return t.trim(); })
+                .filter(function (t) { return t.length > 0; })
+                .forEach(function (name) {
+                    var chip = document.createElement('span');
+                    chip.className = 'csm-quelle-chip';
+                    chip.appendChild(punkt(name, true));
+                    chip.appendChild(document.createTextNode(name));
+                    quellZeile.appendChild(chip);
+                });
+            if (quellZeile.childNodes.length) { werkBox.appendChild(quellZeile); }
+
+            var tdWerk = zelle(werkBox, 'ordner', 'Source');
+            if (z.istHerkunft) {
+                var m = marke(z.istHerkunft === 'hand' ? 'von Hand'
+                    : z.istHerkunft === 'nfo' ? 'from NFO'
+                    : z.istHerkunft === 'bibliothek' ? 'from the library' : 'from the folder name', z.istHerkunft);
+                m.title = z.istHerkunft === 'hand' ? 'from the manual mapping'
+                    : z.istHerkunft === 'nfo' ? 'from the .nfo'
+                    : z.istHerkunft === 'bibliothek' ? 'found by name and year in the library'
+                    : 'from the folder name';
+                tdWerk.appendChild(m);
+            }
+
+            // id: provider, number, two buttons
+            var anbieterZeile = document.createElement('div');
+            anbieterZeile.className = 'csm-anbieter-zeile';
+
+            var anbieter = document.createElement('select');
+            anbieter.style.minHeight = '2.1em';
+            anbieter.setAttribute('aria-label', 'provider of the id');
+            ['tmdb', 'imdb', 'tvdb', 'omdb'].forEach(function (a) {
+                var o = document.createElement('option');
+                o.value = a; o.textContent = a.toUpperCase();
+                anbieter.appendChild(o);
+            });
+            anbieter.value = (z.handAnbieter || 'tmdb').toLowerCase();
+
+            var kennung = document.createElement('input');
+            kennung.type = 'text';
+            kennung.value = z.handKennung || z.istId || '';
+            kennung.placeholder = 'ID, e.g. 10009';
+            kennung.setAttribute('aria-label', 'id');
+            kennung.style.minWidth = '0'; kennung.style.flex = '1 1 auto';
+            anbieterZeile.appendChild(anbieter);
+
+            var idBox = document.createElement('div');
+            idBox.style.display = 'flex'; idBox.style.gap = '.3em'; idBox.style.marginBottom = '.25em';
+            idBox.appendChild(kennung);
+
+            var knopfBox = document.createElement('div');
+            knopfBox.style.display = 'flex'; knopfBox.style.gap = '.3em';
+            var laden = document.createElement('button');
+            laden.type = 'button'; laden.className = 'klein leise'; laden.textContent = 'Infos laden';
+            var suchen = document.createElement('button');
+            suchen.type = 'button'; suchen.className = 'klein leise'; suchen.textContent = 'Suchen';
+            suchen.title = 'Looks up the id for the folder name (TMDB only)';
+            knopfBox.appendChild(laden);
+            knopfBox.appendChild(suchen);
+
+            var idZelle = document.createElement('div');
+            idZelle.appendChild(anbieterZeile);
+            idZelle.appendChild(idBox);
+            idZelle.appendChild(knopfBox);
+            zelle(idZelle, null, 'ID');
+
+            // title and year, editable
+            var titelBox = document.createElement('div');
+            var nameFeld = document.createElement('input');
+            nameFeld.type = 'text';
+            nameFeld.value = z.handName || z.istName || '';
+            nameFeld.className = 'vorschau-name';
+            nameFeld.setAttribute('aria-label', 'Title');
+            nameFeld.style.marginBottom = '.25em';
+            var jahrFeld = document.createElement('input');
+            jahrFeld.type = 'number';
+            jahrFeld.value = z.handJahr || z.istJahr || '';
+            jahrFeld.className = 'vorschau-jahr';
+            jahrFeld.setAttribute('aria-label', 'Year');
+            jahrFeld.placeholder = 'Year';
+            titelBox.appendChild(nameFeld);
+            titelBox.appendChild(jahrFeld);
+            zelle(titelBox, null, 'Title and year');
+
+            // Zielname
+            var zielSpan = document.createElement('span');
+            zielSpan.textContent = z.ziel || '–';
+            var tdZiel = zelle(zielSpan, 'ziel', 'Target name');
+            tdZiel.title = z.ziel || '';
+
+            // Kategorien
+            var tdKat = document.createElement('td');
+            tdKat.setAttribute('data-label', 'Category');
+            var katBox = document.createElement('div');
+            katBox.className = 'csm-kats';
+            tdKat.appendChild(katBox);
+
+            var gewaehlt = (z.kategorien || []).slice();
+            var schalter = [];
+            var leiste = document.createElement('div');
+            leiste.className = 'csm-kat-stand';
+
+            function katStand() {
+                schalter.forEach(function (s) {
+                    var an = gewaehlt.indexOf(s.name) >= 0;
+                    s.btn.className = 'csm-kat' + (an ? ' an' : '');
+                    s.btn.setAttribute('aria-pressed', an ? 'true' : 'false');
+                });
+                leiste.textContent = '\u2192 ' + (gewaehlt.length
+                    ? gewaehlt.join(', ')
+                    : 'Standard' + (blatt.standardKategorie ? ' (' + blatt.standardKategorie + ')' : ''));
+                leiste.title = leiste.textContent;
+            }
+
+            function katSenden() {
+                katBox.classList.add('speichert');
+                api('Kategorie', null, 'POST', {
+                    Ordner: z.ordner,
+                    Quelle: z.quelle,
+                    Schluessel: z.istId,
+                    Serie: z.art === 'series',
+                    Kategorien: gewaehlt.slice()
+                }).then(function (e) {
+                    katBox.classList.remove('speichert');
+                    gewaehlt = (e.kategorien || []).slice();
+                    katStand();
+                    meldung('zuordnungMeldung',
+                        '"' + z.ordner + '" → '
+                        + (gewaehlt.length ? gewaehlt.join(', ') : 'Standard'), 'ok');
+                }, function (xhr) {
+                    katBox.classList.remove('speichert');
+                    var text = 'Category not saved.';
+                    try { text = JSON.parse(xhr.responseText).hinweis || text; } catch (err) { /* ignore */ }
+                    meldung('zuordnungMeldung', text, 'bad');
+                });
+            }
+
+            function katKnopf(name, fremd) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'csm-kat';
+                if (fremd) { b.setAttribute('data-fremd', '1'); }
+                b.appendChild(punkt(name));
+                b.appendChild(document.createTextNode(name));
+                b.title = fremd
+                    ? 'category of the other media type - switch'
+                    : 'switch category ' + name;
+                b.setAttribute('aria-label', 'switch category ' + name);
+                b.addEventListener('click', function () {
+                    var i = gewaehlt.indexOf(name);
+                    if (i >= 0) { gewaehlt.splice(i, 1); } else { gewaehlt.push(name); }
+                    katStand();
+                    katSenden();
+                });
+                katBox.appendChild(b);
+                schalter.push({ name: name, btn: b });
+            }
+
+            (blatt.kategorien || []).forEach(function (name) { katKnopf(name, false); });
+            // First the categories of this media type, then those of the other -
+            // so a title can be put into a foreign target tree as well.
+            (blatt.fremdeKategorien || []).forEach(function (name) { katKnopf(name, true); });
+
+            var stdBtn = document.createElement('button');
+            stdBtn.type = 'button';
+            stdBtn.className = 'csm-kat std';
+            var stdPunkt = document.createElement('i');
+            stdPunkt.setAttribute('aria-hidden', 'true');
+            stdBtn.appendChild(stdPunkt);
+            stdBtn.appendChild(document.createTextNode('Standard'));
+            stdBtn.title = 'no own category - ' + (blatt.standardKategorie || 'standard target');
+            stdBtn.setAttribute('aria-label', 'Standardkategorie verwenden');
+            stdBtn.addEventListener('click', function () {
+                gewaehlt = [];
+                katStand();
+                katSenden();
+            });
+            katBox.appendChild(stdBtn);
+
+            tdKat.appendChild(leiste);
+            katStand();
+            zelle(tdKat);
+
+            // Aktion
+            var tdAktion = document.createElement('td');
+            var uebernehmen = document.createElement('button');
+            uebernehmen.type = 'button'; uebernehmen.className = 'haupt klein'; uebernehmen.textContent = 'Apply';
+            tdAktion.appendChild(uebernehmen);
+            tr.appendChild(tdAktion);
+
+            laden.addEventListener('click', function () {
+                var wahl = anbieter.value || 'tmdb';
+                var id = kennung.value.trim();
+                if (!id) { meldung('zuordnungMeldung', 'No id given.', 'bad'); return; }
+                laden.disabled = true;
+                meldung('zuordnungMeldung', 'Loading info from ' + wahl.toUpperCase() + ' ...');
+                api('Kennung', { anbieter: wahl, kennung: id, serie: z.art === 'series' }).then(function (t) {
+                    laden.disabled = false;
+                    if (!t.gefunden) {
+                        meldung('zuordnungMeldung', t.hinweis || 'Not found.', 'bad');
+                        return;
+                    }
+                    nameFeld.value = t.titel || nameFeld.value;
+                    jahrFeld.value = t.jahr || jahrFeld.value;
+                    zielSpan.textContent = zielVorschau(t.titel || nameFeld.value, t.jahr || jahrFeld.value, t.tmdbId);
+                    tdZiel.title = zielSpan.textContent;
+                    meldung('zuordnungMeldung',
+                        'Found: ' + (t.titel || '?') + (t.jahr ? ' (' + t.jahr + ')' : '')
+                        + (t.tmdbId ? ' · TMDB ' + t.tmdbId : '')
+                        + (t.hinweis ? ' · ' + t.hinweis : ''), 'ok');
+                }, function () {
+                    laden.disabled = false;
+                    meldung('zuordnungMeldung', 'Lookup failed.', 'bad');
+                });
+            });
+
+            suchen.addEventListener('click', function () {
+                suchen.disabled = true;
+                meldung('zuordnungMeldung', 'Searching for "' + (z.istName || z.ordner) + '" ...');
+                api('Kennung/Suche', { name: z.istName || z.ordner, jahr: z.istJahr || '', serie: z.art === 'series' })
+                    .then(function (t) {
+                        suchen.disabled = false;
+                        if (!t.gefunden) {
+                            meldung('zuordnungMeldung', t.hinweis || 'No match.', 'bad');
+                            return;
+                        }
+                        if (t.tmdbId) { anbieter.value = 'tmdb'; kennung.value = t.tmdbId; }
+                        nameFeld.value = t.titel || nameFeld.value;
+                        jahrFeld.value = t.jahr || jahrFeld.value;
+                        zielSpan.textContent = zielVorschau(t.titel || nameFeld.value, t.jahr || jahrFeld.value, t.tmdbId);
+                        tdZiel.title = zielSpan.textContent;
+                        meldung('zuordnungMeldung', (t.hinweis ? t.hinweis : 'Match: ' + (t.titel || '?')
+                            + (t.jahr ? ' (' + t.jahr + ')' : '') + (t.tmdbId ? ' · TMDB ' + t.tmdbId : '')), 'ok');
+                    }, function () {
+                        suchen.disabled = false;
+                        meldung('zuordnungMeldung', 'Search failed.', 'bad');
+                    });
+            });
+
+            uebernehmen.addEventListener('click', function () {
+                uebernehmen.disabled = true;
+                api('Zuordnung', null, 'POST', {
+                    Ordner: z.ordner,
+                    Anbieter: anbieter.value || 'tmdb',
+                    Kennung: kennung.value.trim(),
+                    Serie: z.art === 'series',
+                    Name: nameFeld.value.trim(),
+                    Jahr: parseInt(jahrFeld.value, 10) || null
+                }).then(function (e) {
+                    uebernehmen.disabled = false;
+                    tr.className = 'erledigt';
+                    offenZaehlen(-1);
+                    meldung('zuordnungMeldung',
+                        'Applied: ' + (e.name || '') + (e.jahr ? ' (' + e.jahr + ')' : '')
+                        + (e.tmdbId ? ' · TMDB ' + e.tmdbId : '') + ' - the row disappears on the next refresh.', 'ok');
+                }, function (xhr) {
+                    uebernehmen.disabled = false;
+                    var text = 'Apply failed.';
+                    try { text = JSON.parse(xhr.responseText).hinweis || text; } catch (err) { /* ignore */ }
+                    meldung('zuordnungMeldung', text, 'bad');
+                });
+            });
+
+            return tr;
+        }
+
+        function offenZaehlen(delta) {
+            zeige.offen = Math.max(0, (zeige.offen || 0) + delta);
+            zahlenDerListe();
+        }
+
+        function zahlenDerListe() {
+            var info = feld('blattInfo');
+            if (info) {
+                var teile = [];
+                if (zeige.gefiltert !== undefined) { teile.push(zahl(zeige.gefiltert) + (zeige.gefiltert === 1 ? ' title' : ' titles')); }
+                if (zeige.ohneMedium) { teile.push(zahl(zeige.ohneMedium) + ' folders without their own medium'); }
+                if (zeige.offen !== undefined) { teile.push(zahl(zeige.offen) + ' offen von ' + zahl(zeige.gesamt)); }
+                info.textContent = teile.join(' · ');
+            }
+            var seite = feld('blattSeite');
+            if (seite) { seite.textContent = 'Page ' + blatt.seite + ' of ' + blatt.seiten; }
+
+            var wache = feld('zahlOffen');
+            if (wache) {
+                if (zeige.offen) {
+                    wache.hidden = false;
+                    wache.textContent = zeige.offen > 999 ? '999+' : String(zeige.offen);
+                    feld('tab-zuordnungen').setAttribute('aria-label', 'Zuordnungen, ' + zeige.offen + ' offen');
+                } else {
+                    wache.hidden = true;
+                }
+            }
+            feld('btnErste').disabled = blatt.seite <= 1;
+            feld('btnZurueck').disabled = blatt.seite <= 1;
+            feld('btnWeiter').disabled = blatt.seite >= blatt.seiten;
+            feld('btnLetzte').disabled = blatt.seite >= blatt.seiten;
+        }
+
+        function bestandLaden(seite, erneuern) {
+            blatt.seite = Math.max(1, seite || 1);
+            meldung('zuordnungMeldung', 'Loading list ...');
+            var parameter = {
+                art: 'alle',
+                quelle: blatt.quelle,
+                status: blatt.status,
+                suche: blatt.suche,
+                kategorie: blatt.kategorie,
+                sort: blatt.sort,
+                richtung: blatt.richtung,
+                seite: blatt.seite,
+                groesse: blatt.groesse
+            };
+            // ASP.NET only binds bool from true/false - "1" would be a 400.
+            if (erneuern) { parameter.erneuern = 'true'; }
+            api('Bestand', parameter).then(function (d) {
+                blatt.seiten = d.seiten || 1;
+                blatt.kategorien = d.kategorien || [];
+                blatt.fremdeKategorien = d.fremdeKategorien || [];
+                blatt.quellen = d.quellen || [];
+                blatt.standardKategorie = d.standardKategorie || '';
+                legendeBauen(d.quellen, d.kategorien, d.fremdeKategorien);
+                alleKategorien = (d.kategorien || []).concat(d.fremdeKategorien || []);
+                zeige.offen = d.offen || 0;
+                zeige.gesamt = d.gesamt || 0;
+                zeige.gefiltert = d.gefiltert;
+                zeige.ohneMedium = d.ohneMedium;
+
+                var katFeld = feld('selKategorie');
+                if (katFeld) {
+                    if (blatt.kategorie && (d.kategorien || []).indexOf(blatt.kategorie) < 0) {
+                        blatt.kategorie = '';
+                    }
+                    Array.prototype.slice.call(katFeld.querySelectorAll('option')).forEach(function (o) {
+                        if (o.value && o.value !== 'standard') { o.remove(); }
+                    });
+                    (d.kategorien || []).concat(d.fremdeKategorien || []).forEach(function (k) {
+                        var o = document.createElement('option');
+                        o.value = k; o.textContent = k;
+                        katFeld.appendChild(o);
+                    });
+                    katFeld.value = blatt.kategorie || '';
+                }
+
+                var koerper = feld('bestandBody');
+                koerper.innerHTML = '';
+                var zeilen = (d.zeilen || []).filter(function (z) { return !z.fehlt; });
+                if (!zeilen.length) {
+                    leereZeile(koerper, 6, blatt.suche || blatt.kategorie || blatt.status !== 'offen'
+                        ? 'No title matches this selection.'
+                        : 'Alles zugeordnet. Nichts zu tun.');
+                } else {
+                    zeilen.forEach(function (z) { koerper.appendChild(bestandZeile(z)); });
+                }
+
+                var leiste = feld('hinweisLeiste');
+                leiste.innerHTML = '';
+                if (!d.tmdbSchluessel) {
+                    leiste.appendChild(marke('Without a TMDB key, TMDB, IMDB and TVDB cannot be queried', 'nfo'));
+                }
+                if (!d.omdbSchluessel) {
+                    leiste.appendChild(marke('Without an OMDB key, OMDB stays off', 'nfo'));
+                }
+                meldung('zuordnungMeldung', '');
+                zahlenDerListe();
+            }, function () {
+                meldung('zuordnungMeldung', 'List not available.', 'bad');
+            });
+        }
+
+        // ---------- Verdrahtung ----------
+        document.querySelectorAll('.csm-tabelle th.sortierbar').forEach(function (th) {
+            function sortieren() {
+                var schluessel = th.getAttribute('data-sort');
+                if (blatt.sort === schluessel) {
+                    blatt.richtung = blatt.richtung === 'auf' ? 'ab' : 'auf';
+                } else {
+                    blatt.sort = schluessel;
+                    blatt.richtung = 'auf';
+                }
+                document.querySelectorAll('.csm-tabelle th.sortierbar').forEach(function (x) {
+                    x.setAttribute('aria-sort', 'none');
+                    x.querySelector('.pfeil').textContent = '\u2195';
+                });
+                th.setAttribute('aria-sort', blatt.richtung === 'auf' ? 'ascending' : 'descending');
+                th.querySelector('.pfeil').textContent = blatt.richtung === 'auf' ? '\u25b2' : '\u25bc';
+                bestandLaden(1);
+            }
+            th.addEventListener('click', sortieren);
+            th.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sortieren(); }
+            });
+            th.tabIndex = 0;
+            th.setAttribute('role', 'button');
+        });
+
+        feld('selQuelle').addEventListener('change', function () {
+            blatt.quelle = this.value;
+            blatt.seite = 1;
+            bestandLaden(1);
+        });
+        feld('selStatus').addEventListener('change', function () { blatt.status = this.value; bestandLaden(1); });
+        feld('selKategorie').addEventListener('change', function () { blatt.kategorie = this.value; bestandLaden(1); });
+        feld('selGroesse').addEventListener('change', function () { blatt.groesse = parseInt(this.value, 10) || 50; bestandLaden(1); });
+
+        var suchFeld = feld('txtSuche');
+        var suchLeeren = feld('btnSucheLeeren');
+        suchFeld.addEventListener('input', function () {
+            var wertigkeit = this.value;
+            suchLeeren.hidden = !wertigkeit;
+            clearTimeout(window.__csmSuche);
+            window.__csmSuche = setTimeout(function () { blatt.suche = wertigkeit; bestandLaden(1); }, 350);
+        });
+        suchFeld.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                clearTimeout(window.__csmSuche);
+                blatt.suche = this.value;
+                bestandLaden(1);
+            } else if (e.key === 'Escape') {
+                this.value = '';
+                suchLeeren.hidden = true;
+                clearTimeout(window.__csmSuche);
+                blatt.suche = '';
+                bestandLaden(1);
+            }
+        });
+        suchLeeren.addEventListener('click', function () {
+            suchFeld.value = '';
+            suchLeeren.hidden = true;
+            blatt.suche = '';
+            bestandLaden(1);
+            suchFeld.focus();
+        });
+
+        feld('btnNeu').addEventListener('click', function () {
+            // Without a refresh the server returns data up to two minutes old.
+            bestandLaden(1, true);
+        });
+        feld('btnErste').addEventListener('click', function () { bestandLaden(1); });
+        feld('btnZurueck').addEventListener('click', function () { bestandLaden(Math.max(1, blatt.seite - 1)); });
+        feld('btnWeiter').addEventListener('click', function () { bestandLaden(Math.min(blatt.seiten, blatt.seite + 1)); });
+        feld('btnLetzte').addEventListener('click', function () { bestandLaden(blatt.seiten); });
+
+        feld('btnQuelle').addEventListener('click', function () {
+            var koerper = feld('quellenBody');
+            var leer = koerper.querySelector('.leer');
+            if (leer) { koerper.innerHTML = ''; }
+            koerper.appendChild(quellenZeile({ Rang: 50, Art: 'Lokal' }));
+            schmutzigSetzen('quellen');
+        });
+        feld('btnKategorie').addEventListener('click', function () {
+            var koerper = feld('kategorienBody');
+            var leer = koerper.querySelector('.leer');
+            if (leer) { koerper.innerHTML = ''; }
+            koerper.appendChild(katZeile({}));
+            schmutzigSetzen('quellen');
+        });
+        feld('btnSpeichernQuellen').addEventListener('click', function () { speichern('quellenMeldung'); });
+        feld('btnSpeichernEinstellungen').addEventListener('click', function () { speichern('einstellungenMeldung'); });
+
+        feld('btnVerwerfenQuellen').addEventListener('click', function () {
+            if (!window.confirm('Discard changes to sources and categories?')) { return; }
+            ApiClient.getPluginConfiguration(pluginId).then(function (c) {
+                konfigurationZeigen(c);
+                meldung('quellenMeldung', 'Discarded.', 'ok');
+            });
+        });
+        feld('btnVerwerfenEinstellungen').addEventListener('click', function () {
+            if (!window.confirm('Discard changes to the settings?')) { return; }
+            ApiClient.getPluginConfiguration(pluginId).then(function (c) {
+                konfigurationZeigen(c);
+                meldung('einstellungenMeldung', 'Discarded.', 'ok');
+            });
+        });
+        feld('chkNurPlanen').addEventListener('change', planHinweisZeigen);
+
+        function laufStarten(btn, zielMeldung) {
+            var b = btn;
+            b.disabled = true;
+            meldung(zielMeldung, 'Run requested ...');
+            api('Lauf', null, 'POST', {}).then(function (r) {
+                b.disabled = false;
+                meldung(zielMeldung, wert(r, 'nurPlanen', 'NurPlanen')
+                    ? 'Run started - dry run, nothing is written.'
+                    : 'Run started.');
+                laufBeobachtet = true;
+                beobachten();
+            }, function (xhr) {
+                b.disabled = false;
+                var text = 'Run not started.';
+                try { text = JSON.parse(xhr.responseText).hinweis || text; } catch (e) { /* ignore */ }
+                meldung(zielMeldung, text, 'bad');
+                statusLaden();
+            });
+        }
+
+        feld('btnZusammenfuehren').addEventListener('click', function () {
+            laufStarten(this, 'zuordnungMeldung');
+        });
+        feld('btnLauf').addEventListener('click', function () {
+            laufStarten(this, 'laufMeldung');
+        });
+
+        feld('btnSichern').addEventListener('click', function () {
+            var b = this;
+            b.disabled = true;
+            api('Sicherung', null, 'POST', {}).then(function (r) {
+                b.disabled = false;
+                meldung('laufMeldung', 'Backup created: ' + (wert(r, 'name', 'Name') || 'ok'), 'ok');
+                sicherungenLaden();
+            }, function () {
+                b.disabled = false;
+                meldung('laufMeldung', 'Backup failed.', 'bad');
+            });
+        });
+
+        feld('btnZuListe').addEventListener('click', function () { tabZeigen('zuordnungen'); });
+
+        // ---------- tabs: cleanup ----------
+        var altGeladen = false;
+        var altZeilen = [];
+
+        function groesse(n) {
+            var wert = Number(n || 0);
+            if (wert >= 1024 * 1024 * 1024) { return (wert / (1024 * 1024 * 1024)).toFixed(1) + ' GiB'; }
+            if (wert >= 1024 * 1024) { return (wert / (1024 * 1024)).toFixed(0) + ' MB'; }
+            if (wert >= 1024) { return (wert / 1024).toFixed(0) + ' KB'; }
+            return wert + ' B';
+        }
+
+        function altZeile(z, i) {
+            var tr = document.createElement('tr');
+            var td = document.createElement('td');
+            var box = document.createElement('input');
+            box.type = 'checkbox';
+            box.className = 'alt-box';
+            box.setAttribute('data-i', i);
+            box.setAttribute('aria-label', 'Select: ' + z.Name);
+            td.appendChild(box);
+            tr.appendChild(td);
+
+            function spalte(text, titel) {
+                var c = document.createElement('td');
+                c.textContent = text;
+                if (titel) { c.title = titel; }
+                tr.appendChild(c);
+                return c;
+            }
+
+            spalte(z.Art === 'Ordner' ? 'Folder' : 'File');
+            var name = spalte(z.Name, z.Pfad);
+            name.className = z.Art === 'Ordner' ? 'csm-stark' : '';
+            spalte(z.Kategorie);
+            spalte(z.Art === 'Ordner' ? zahl(z.Dateien) : '');
+            spalte(groesse(z.Bytes));
+            spalte(uhrzeit(z.Geaendert));
+            return tr;
+        }
+
+        function altZeigen() {
+            var koerper = feld('altBody');
+            koerper.innerHTML = '';
+            var grenze = 500;
+            altZeilen.slice(0, grenze).forEach(function (z, i) {
+                koerper.appendChild(altZeile(z, i));
+            });
+            if (altZeilen.length === 0) {
+                var tr = document.createElement('tr');
+                var td = document.createElement('td');
+                td.colSpan = 7;
+                td.className = 'leer';
+                td.textContent = 'Nothing to do - the target tree matches the last plan.';
+                tr.appendChild(td);
+                koerper.appendChild(tr);
+            }
+
+            var mehr = feld('altMehr');
+            if (mehr) {
+                mehr.hidden = altZeilen.length <= grenze;
+                mehr.textContent = altZeilen.length > grenze
+                    ? 'Showing the first ' + grenze + ' of ' + zahl(altZeilen.length) + '. "Remove all" still takes everything.'
+                    : '';
+            }
+
+            var zahlEl = feld('zahlAlt');
+            if (zahlEl) {
+                zahlEl.hidden = altZeilen.length === 0;
+                zahlEl.textContent = zahl(altZeilen.length);
+            }
+
+            var kopf = feld('chkAltAlle');
+            if (kopf) { kopf.checked = false; }
+            altAuswahlZeigen();
+        }
+
+        function altAuswahl() {
+            return Array.prototype.slice.call(document.querySelectorAll('.alt-box'))
+                .filter(function (b) { return b.checked; })
+                .map(function (b) { return altZeilen[Number(b.getAttribute('data-i'))].Pfad; });
+        }
+
+        function altAuswahlZeigen() {
+            var n = altAuswahl().length;
+            var b = feld('btnAltWeg');
+            if (b) { b.disabled = n === 0; b.textContent = n > 0 ? 'Remove selected (' + n + ')' : 'Remove selected'; }
+        }
+
+        function altLaden() {
+            altGeladen = true;
+            meldung('altMeldung', 'Reading the target tree ...');
+            api('Aufraeumen').then(function (r) {
+                altZeilen = r.zeilen || [];
+                altZeigen();
+                meldung('altMeldung', '');
+                var stand = feld('altStand');
+                if (stand) {
+                    stand.textContent = (r.bekannt === false)
+                        ? 'No run with an expected list yet - please merge once.'
+                        : 'Compared with the run ' + (vorZeit(r.stand) || '?') +
+                          ' · ' + zahl(altZeilen.length) + ' targets without a source';
+                }
+            }, function () {
+                meldung('altMeldung', 'List not readable.', 'bad');
+            });
+        }
+
+        function altWegraeumen(alle) {
+            var pfade = alle ? [] : altAuswahl();
+            if (!alle && pfade.length === 0) { return; }
+            var text = alle
+                ? 'Move all ' + altZeilen.length + ' targets without a source to "-alt/aufraeumen"?'
+                : pfade.length + ' entries to "-alt/aufraeumen"?'
+            if (!window.confirm(text + ' Nothing is deleted.')) { return; }
+
+            var b = alle ? feld('btnAltAlle') : feld('btnAltWeg');
+            b.disabled = true;
+            meldung('altMeldung', 'Moving ...');
+            api('Aufraeumen/Entfernen', null, 'POST', { alle: !!alle, pfade: pfade }).then(function (r) {
+                b.disabled = false;
+                meldung('altMeldung', r.meldung || 'Done.', r.fehler ? 'bad' : 'ok');
+                altGeladen = true;
+                altLaden();
+            }, function () {
+                b.disabled = false;
+                meldung('altMeldung', 'Not executed.', 'bad');
+            });
+        }
+
+        feld('btnAltNeu').addEventListener('click', altLaden);
+        feld('btnAltWeg').addEventListener('click', function () { altWegraeumen(false); });
+        feld('btnAltAlle').addEventListener('click', function () {
+            if (altZeilen.length === 0) { return; }
+            altWegraeumen(true);
+        });
+        document.addEventListener('change', function (e) {
+            if (e.target && e.target.id === 'chkAltAlle') {
+                var an = e.target.checked;
+                Array.prototype.slice.call(document.querySelectorAll('.alt-box')).forEach(function (b) { b.checked = an; });
+                altAuswahlZeigen();
+            } else if (e.target && e.target.classList && e.target.classList.contains('alt-box')) {
+                altAuswahlZeigen();
+            }
+        });
+
+        ApiClient.getPluginConfiguration(pluginId).then(function (c) {
+            konfigurationZeigen(c);
+            statusLaden();
+            sicherungenLaden();
+            zahlenDerListe();
+        });
+
+        tabZeigen('uebersicht');
+    })();
+</script>
+</div>
+
+
+</body>
+</html>

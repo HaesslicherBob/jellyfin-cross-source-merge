@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build
+        run: dotnet build src/Jellyfin.Plugin.CrossSourceMerge/Jellyfin.Plugin.CrossSourceMerge.csproj --configuration Release
+
+      - name: Create ZIP
+        run: |
+          mkdir -p package
+          cp src/Jellyfin.Plugin.CrossSourceMerge/bin/Release/net10.0/Jellyfin.Plugin.CrossSourceMerge.dll package/
+          cd package && zip -r ../cross-source-merge-${GITHUB_REF_NAME#v}.zip . && cd ..
+
+      - name: Checksum
+        run: |
+          md5sum cross-source-merge-*.zip
+          echo "### MD5 of the uploaded ZIP" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          md5sum cross-source-merge-*.zip >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "Copy this value into manifest.json before the next update cycle." >> $GITHUB_STEP_SUMMARY
+
+      - name: Create release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: cross-source-merge-*.zip
+          generate_release_notes: true

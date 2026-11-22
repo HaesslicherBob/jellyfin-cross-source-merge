@@ -1,0 +1,107 @@
+/* Nachbau der Jellyfin-Oberflaeche, damit die Einstellungsseite ohne Server
+   beurteilt werden kann. Nur die Klassen, die die Seite benutzt. */
+
+:root {
+    --accent: #00a4dc;
+    --hintergrund: #101010;
+    --flaeche: #202020;
+    --flaeche2: #2a2a2a;
+    --rand: rgba(255, 255, 255, .14);
+    --text: rgba(255, 255, 255, .87);
+    --text-leise: rgba(255, 255, 255, .55);
+    --gut: #3fb950;
+    --schlecht: #f85149;
+    --warn: #d29922;
+}
+
+body.hell {
+    background: #f4f4f4;
+    min-height: 100vh;
+    --hintergrund: #f4f4f4;
+    --flaeche: #ffffff;
+    --flaeche2: #ececec;
+    --rand: rgba(0, 0, 0, .14);
+    --text: rgba(0, 0, 0, .87);
+    --text-leise: rgba(0, 0, 0, .55);
+    --gut: #1a7f37;
+    --schlecht: #cf222e;
+    --warn: #9a6700;
+}
+
+html, body {
+    margin: 0;
+    background: var(--hintergrund);
+    color: var(--text);
+    font-family: "Noto Sans", Roboto, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Rahmen wie die Jellyfin-Konfigurationsseite: Kopfzeile mit Zurueck-Pfeil */
+.jf-kopf {
+    display: flex; align-items: center; gap: .8em;
+    padding: .9em 1.6em; background: var(--flaeche);
+    border-bottom: 1px solid var(--rand); position: sticky; top: 0; z-index: 10;
+}
+.jf-kopf h1 { font-size: 1.15em; margin: 0; font-weight: 500; }
+.jf-zurueck {
+    width: 2.2em; height: 2.2em; border-radius: 50%; border: 0; background: none;
+    color: var(--text); font-size: 1.1em; cursor: pointer;
+}
+.jf-zurueck:hover { background: var(--flaeche2); }
+.jf-hinweis { margin-left: auto; font-size: .8em; color: var(--text-leise); }
+
+.page { padding: 1.4em 1.6em 4em; max-width: 1500px; }
+.content-primary { width: 100%; }
+
+.sectionTitle { font-size: 1.05em; font-weight: 600; margin: 1.4em 0 .35em; }
+h3.sectionTitle { font-size: .95em; }
+.fieldDescription { font-size: .82em; color: var(--text-leise); margin: .3em 0 1em; max-width: 62em; }
+.verticalSection { margin-bottom: 1.6em; }
+.fieldDescription code {
+    background: var(--flaeche2); padding: .05em .3em; border-radius: 3px; font-size: .95em;
+}
+
+/* Buttons: Jellyfin setzt is="emby-button" */
+button, [is="emby-button"] {
+    font: inherit; font-size: .85em; color: var(--text);
+    background: var(--flaeche2); border: 0; border-radius: 4px;
+    padding: .55em 1em; cursor: pointer; letter-spacing: .02em;
+}
+button:hover { background: #353535; }
+body.hell button:hover { background: #dcdcdc; }
+button.raised { background: var(--accent); color: #fff; }
+button.raised:hover { filter: brightness(1.1); }
+button.small { font-size: .78em; padding: .35em .7em; }
+button.block { display: block; width: 100%; padding: .8em; font-size: .9em; }
+button[disabled] { opacity: .5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+}
+
+/* Eingaben */
+.inputContainer { position: relative; margin: 0 0 1.1em; max-width: 34em; }
+.inputLabel {
+    display: block; font-size: .75em; color: var(--text-leise); margin-bottom: .25em;
+}
+input[type=text], input[type=number], select, input:not([type]) {
+    font: inherit; font-size: .88em; color: var(--text);
+    background: var(--flaeche2); border: 0; border-bottom: 1px solid var(--rand);
+    border-radius: 3px 3px 0 0; padding: .5em .6em; box-sizing: border-box; width: 100%;
+}
+input[type=text]:focus, input[type=number]:focus, select:focus { border-bottom-color: var(--accent); }
+input::placeholder { color: var(--text-leise); opacity: .7; }
+input[type=checkbox] { width: 1.05em; height: 1.05em; accent-color: var(--accent); }
+
+.checkboxContainer {
+    display: flex; align-items: center; gap: .6em; font-size: .88em;
+    margin: .45em 0; cursor: pointer;
+}
+
+/* Tabellen wie Jellyfins detailTable */
+.detailTable { width: 100%; border-collapse: collapse; font-size: .85em; }
+.detailTable th {
+    text-align: left; font-weight: 500; font-size: .82em; color: var(--text-leise);
+    padding: .5em .6em; border-bottom: 1px solid var(--rand); white-space: nowrap;
+}
+.detailTable td { padding: .35em .6em; border-bottom: 1px solid var(--rand); vertical-align: middle; }

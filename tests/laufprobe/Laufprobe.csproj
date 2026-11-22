@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Laufprobe</RootNamespace>
+    <AssemblyName>Laufprobe</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Textregeln.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Nfo.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Modelle.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Scannen.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Planen.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Anwenden.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/TmdbIndex.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Zustand.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Schatten.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Kategorien.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Aufraeumen.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/MediaInfo.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Zustandsdatei.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Betriebssystem.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Sprache.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

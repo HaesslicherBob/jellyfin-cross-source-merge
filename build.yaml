@@ -1,0 +1,17 @@
+---
+name: "Cross-Source Merge"
+guid: "6f1c8b52-7d43-4a6e-9c31-2b5e0d7a4f18"
+version: "0.0.1"
+targetAbi: "12.4.0.0"
+framework: "net10.0"
+overview: "Merges movies and series from several source folders into one library tree."
+description: >
+  Merges movies and series from several source folders into one library.
+  Only source and target directories are configured. The plugin reads the
+  sources, groups them by TMDB id, title and year, and creates one folder per
+  title holding one link per source. Missing sources stay visible as a shadow
+  library. No python, no helper script, no schedule unless you set one.
+category: "General"
+owner: "HaesslicherBob"
+artifacts:
+  - "Jellyfin.Plugin.CrossSourceMerge.dll"

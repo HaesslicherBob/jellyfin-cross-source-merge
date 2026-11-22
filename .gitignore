@@ -1,0 +1,27 @@
+# build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+
+# tooling
+.idea/
+.vscode/
+*.zip
+*.nupkg
+
+# operating system
+.DS_Store
+Thumbs.db
+
+# node dependencies
+node_modules/
+
+# generated
+tests/vorschau/vorschau.html
+tests/vorschau/bilder/
+tests/seitenprobe/node_modules/
+node_modules/

@@ -1,0 +1,8 @@
+{
+  "name": "csm-seitenprobe",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Prueft configPage.html ohne Jellyfin (jsdom)",
+  "scripts": { "test": "node seitenprobe.js" },
+  "dependencies": { "jsdom": "^24.0.0" }
+}
