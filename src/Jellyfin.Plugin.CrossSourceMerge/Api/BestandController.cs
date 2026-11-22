@@ -91,7 +91,7 @@ public class BestandController : ControllerBase
             "alle" => gefiltert,
             "zugeordnet" => gefiltert.Where(z => z.Status == "zugeordnet"),
             "ohne-kennung" => gefiltert.Where(z => z.Status == "ohne-kennung"),
-            "ohne-info" => gefiltert.Where(z => z.Status == "ohne-info"),
+            "ohne-info" => gefiltert.Where(z => z.OhneInfo),
             _ => gefiltert.Where(z => z.Status != "zugeordnet")
         };
 
@@ -160,6 +160,7 @@ public class BestandController : ControllerBase
                 handJahr = z.HandJahr,
                 ziel = z.Ziel,
                 status = z.Status,
+                ohneInfo = z.OhneInfo,
                 fehlt = z.Fehlt,
                 kategorien = z.Kategorien
             })

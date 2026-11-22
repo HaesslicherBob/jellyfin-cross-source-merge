@@ -70,8 +70,11 @@ public static class Bestand
         /// <summary>Target folder name that the merge would build.</summary>
         public string Ziel { get; set; } = string.Empty;
 
-        /// <summary>One of: zugeordnet, ohne-kennung, ohne-info.</summary>
+        /// <summary>One of: zugeordnet, ohne-kennung.</summary>
         public string Status { get; set; } = string.Empty;
+
+        /// <summary>Id is set, but the library knows no title for it yet.</summary>
+        public bool OhneInfo { get; set; }
 
         /// <summary>Source currently not reachable.</summary>
         public bool Fehlt { get; set; }
@@ -252,11 +255,13 @@ public static class Bestand
 
                 zeile.Ziel = Scannen.ZielName(zeile.IstId, ersatz, index, zusatz);
                 var info = string.IsNullOrWhiteSpace(zeile.IstId) ? null : index.Info(zeile.IstId);
-                // A foreign tag (tvdb:...) has no TMDB entry and
-                // does not need one - it is mapped anyway.
-                zeile.Status = string.IsNullOrWhiteSpace(zeile.IstId)
-                    ? "ohne-kennung"
-                    : Textregeln.IstFremd(zeile.IstId) || info is not null ? "zugeordnet" : "ohne-info";
+                // An id is what makes a title mapped. Whether the library
+                // already knows a title for it is a separate question: the
+                // target name falls back to the folder name, so a title that
+                // exists only in a source must not keep sitting in "without
+                // mapping". A foreign tag (tvdb:...) counts as mapped too.
+                zeile.Status = Zuordnungsstatus.StatusFuer(zeile.IstId);
+                zeile.OhneInfo = Zuordnungsstatus.OhneInfoFuer(zeile.IstId, Textregeln.IstFremd(zeile.IstId), info is not null);
 
                 zeilen.Add(zeile);
             }

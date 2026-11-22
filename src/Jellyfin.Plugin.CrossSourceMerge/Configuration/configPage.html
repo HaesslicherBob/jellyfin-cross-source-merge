@@ -12,9 +12,13 @@
            Everything lives under #CrossSourceMergeConfigPage, so the page does not
            touch the Jellyfin UI. Colors come from translucent grey plus the accent
            color, which works for light and dark themes without knowing about them.
-           */
            ------------------------------------------------------------------ */
         #CrossSourceMergeConfigPage {
+            /* Text follows the surrounding theme; the muted tone is a neutral
+               grey that reads on both a light and a dark surface. */
+            --csm-text: inherit;
+            --csm-text-leise: rgba(128, 128, 128, .95);
+            --csm-farbe: currentColor;
             --csm-rand: rgba(128, 128, 128, .26);
             --csm-rand-stark: rgba(128, 128, 128, .42);
             --csm-flaeche: rgba(128, 128, 128, .07);
@@ -408,17 +412,17 @@
         </div>
 
         <div class="csm-karte">
-            <h3>Zielbaum</h3>
+            <h3>Target tree</h3>
             <p class="csm-einleitung">
                 The plugin creates one folder per title in the target directory and links to the
                 medium of the best source. Whatever is missing or looks wrong can be fixed under
-                <b>Zuordnungen</b> geradeziehen.
+                <b>Mappings</b>.
             </p>
             <button type="button" class="leise" id="btnZuListe">Review mappings</button>
         </div>
 
         <div class="csm-karte">
-            <h3>Sicherungen</h3>
+            <h3>Backups</h3>
             <p class="csm-einleitung">
                 Before every writing run the plugin backs up its state. The newest entries are on top,
                 the oldest drop out once the configured number is reached.
@@ -443,7 +447,7 @@
     <section class="csm-abschnitt" id="pane-zuordnungen" data-tab="zuordnungen" role="tabpanel" aria-labelledby="tab-zuordnungen" hidden>
 
         <div class="csm-karte">
-            <h3>Werkliste</h3>
+            <h3>Work list</h3>
             <p class="csm-einleitung">
                 Every title from every source - with source, tag, target name and category. Anything without a
                 tag can be added here: type it in or search by folder name and
@@ -453,7 +457,7 @@
 
             <div class="csm-werkzeuge">
                 <div class="csm-feld suche">
-                    <label for="txtSuche">Suchen</label>
+                    <label for="txtSuche">Search</label>
                     <span class="csm-suchfeld">
                         <input type="text" id="txtSuche" placeholder="Title, folder or tag" autocomplete="off" />
                         <button type="button" id="btnSucheLeeren" title="Clear search" aria-label="Clear search" hidden>&times;</button>
@@ -466,10 +470,11 @@
                     </select>
                 </div>
                 <div class="csm-feld">
-                    <label for="selStatus">Zustand</label>
+                    <label for="selStatus">Status</label>
                     <select id="selStatus">
                         <option value="offen">without mapping</option>
-                        <option value="zugeordnet">zugeordnet</option>
+                        <option value="zugeordnet">mapped</option>
+                        <option value="ohne-info">id without title</option>
                         <option value="alle">all</option>
                     </select>
                 </div>
@@ -569,7 +574,7 @@
                 <thead>
                 <tr>
                     <th scope="col" style="width:14%">Name</th>
-                    <th scope="col">Zielpfad</th>
+                    <th scope="col">Target path</th>
                     <th scope="col" style="width:18%">Muster</th>
                     <th scope="col" style="width:6em">Series</th>
                     <th scope="col" style="width:6em">Standard</th>
@@ -635,7 +640,7 @@
     <section class="csm-abschnitt" id="pane-einstellungen" data-tab="einstellungen" role="tabpanel" aria-labelledby="tab-einstellungen" hidden>
 
         <div class="csm-karte">
-            <h3>Erkennung</h3>
+            <h3>Detection</h3>
             <p class="csm-einleitung">
                 Title, year and id are read from the folder name, from <code>.nfo</code> files and
                 from the Jellyfin library. A key is only needed for titles that are unknown
@@ -662,7 +667,7 @@
         </div>
 
         <div class="csm-karte">
-            <h3>Schreiben</h3>
+            <h3>Writing</h3>
 
             <label class="csm-schalter">
                 <input type="checkbox" id="chkNfo" />
@@ -735,7 +740,7 @@
             </label>
 
             <div class="csm-feld-block schmal">
-                <label for="txtSicherungen">Sicherungen aufheben</label>
+                <label for="txtSicherungen">Keep backups</label>
                 <input type="number" id="txtSicherungen" min="0" step="1" inputmode="numeric" />
                 <p class="csm-tipp">Older state files are deleted on the next run. 0 keeps no backup at all.</p>
             </div>
@@ -1580,7 +1585,7 @@
 
             var tdWerk = zelle(werkBox, 'ordner', 'Source');
             if (z.istHerkunft) {
-                var m = marke(z.istHerkunft === 'hand' ? 'von Hand'
+                var m = marke(z.istHerkunft === 'hand' ? 'manual'
                     : z.istHerkunft === 'nfo' ? 'from NFO'
                     : z.istHerkunft === 'bibliothek' ? 'from the library' : 'from the folder name', z.istHerkunft);
                 m.title = z.istHerkunft === 'hand' ? 'from the manual mapping'
@@ -1588,6 +1593,12 @@
                     : z.istHerkunft === 'bibliothek' ? 'found by name and year in the library'
                     : 'from the folder name';
                 tdWerk.appendChild(m);
+            }
+
+            if (z.ohneInfo) {
+                var offenInfo = marke('no title yet', 'ohneInfo');
+                offenInfo.title = 'The id is set, but the library has no title for it yet - the folder name is used for the target.';
+                tdWerk.appendChild(offenInfo);
             }
 
             // id: provider, number, two buttons
@@ -1619,9 +1630,9 @@
             var knopfBox = document.createElement('div');
             knopfBox.style.display = 'flex'; knopfBox.style.gap = '.3em';
             var laden = document.createElement('button');
-            laden.type = 'button'; laden.className = 'klein leise'; laden.textContent = 'Infos laden';
+            laden.type = 'button'; laden.className = 'klein leise'; laden.textContent = 'Load info';
             var suchen = document.createElement('button');
-            suchen.type = 'button'; suchen.className = 'klein leise'; suchen.textContent = 'Suchen';
+            suchen.type = 'button'; suchen.className = 'klein leise'; suchen.textContent = 'Search';
             suchen.title = 'Looks up the id for the folder name (TMDB only)';
             knopfBox.appendChild(laden);
             knopfBox.appendChild(suchen);
@@ -1843,7 +1854,7 @@
                 var teile = [];
                 if (zeige.gefiltert !== undefined) { teile.push(zahl(zeige.gefiltert) + (zeige.gefiltert === 1 ? ' title' : ' titles')); }
                 if (zeige.ohneMedium) { teile.push(zahl(zeige.ohneMedium) + ' folders without their own medium'); }
-                if (zeige.offen !== undefined) { teile.push(zahl(zeige.offen) + ' offen von ' + zahl(zeige.gesamt)); }
+                if (zeige.offen !== undefined) { teile.push(zahl(zeige.offen) + ' open of ' + zahl(zeige.gesamt)); }
                 info.textContent = teile.join(' · ');
             }
             var seite = feld('blattSeite');
@@ -1854,7 +1865,7 @@
                 if (zeige.offen) {
                     wache.hidden = false;
                     wache.textContent = zeige.offen > 999 ? '999+' : String(zeige.offen);
-                    feld('tab-zuordnungen').setAttribute('aria-label', 'Zuordnungen, ' + zeige.offen + ' offen');
+                    feld('tab-zuordnungen').setAttribute('aria-label', 'Mappings, ' + zeige.offen + ' open');
                 } else {
                     wache.hidden = true;
                 }

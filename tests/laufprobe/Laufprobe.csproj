@@ -28,6 +28,7 @@
     <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Zustandsdatei.cs" />
     <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Betriebssystem.cs" />
     <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Sprache.cs" />
+    <Compile Include="../../src/Jellyfin.Plugin.CrossSourceMerge/Engine/Zuordnungsstatus.cs" />
   </ItemGroup>
 
   <ItemGroup>

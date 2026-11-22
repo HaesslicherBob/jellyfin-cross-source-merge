@@ -344,6 +344,20 @@ Pruefe("TmdbAusNamen", "333371", Textregeln.TmdbAusNamen("10 Cloverfield Lane (2
 
 Pruefe("IstSample", "true", Textregeln.IstSample("/x/Film/sample/Film.mkv").ToString().ToLowerInvariant());
 
+// Mapping status: an id makes a title mapped, even when the library knows no
+// title for it. Source-only titles carry their id in the folder name and must
+// leave "without mapping" - otherwise every such title stays there for good.
+Pruefe("status with an id", "zugeordnet", Zuordnungsstatus.StatusFuer("tmdb:68315"));
+Pruefe("status without an id", "ohne-kennung", Zuordnungsstatus.StatusFuer(""));
+Pruefe("source-only title warns about the missing title", "True",
+    Zuordnungsstatus.OhneInfoFuer("tmdb:68315", false, false).ToString());
+Pruefe("library title needs no warning", "False",
+    Zuordnungsstatus.OhneInfoFuer("tmdb:68315", false, true).ToString());
+Pruefe("foreign tag needs no title", "False",
+    Zuordnungsstatus.OhneInfoFuer("tvdb:4711", true, false).ToString());
+Pruefe("no id means no title warning", "False",
+    Zuordnungsstatus.OhneInfoFuer("", false, false).ToString());
+
 // ---- Run against real folders ----
 var quellen = new List<string>();
 string? ziel = null;

@@ -63,6 +63,19 @@ function pruefe(was, soll, ist) {
 const warte = (ms) => new Promise(r => setTimeout(r, ms));
 
 (async () => {
+    // Stylesheet sanity: if the palette is not defined, the whole page falls
+    // back to inherited grey and the marks turn invisible.
+    const stil = (html.match(/<style[^>]*>([\s\S]*?)<\/style>/) || [])[1] || '';
+    let offen = 0, zerbrochen = false;
+    for (const m of stil.matchAll(/\/\*|\*\//g)) {
+        if (m[0] === '/*') { offen++; } else { offen--; if (offen < 0) { zerbrochen = true; } }
+    }
+    pruefe('styles have balanced comments', 'true', String(offen === 0 && !zerbrochen));
+    const definiert = new Set([...stil.matchAll(/(--csm-[a-z0-9-]+)\s*:/g)].map(m => m[1]));
+    const benutzt = new Set([...stil.matchAll(/var\(\s*(--csm-[a-z0-9-]+)/g)].map(m => m[1]));
+    const fehlend = [...benutzt].filter(v => !definiert.has(v));
+    pruefe('every --csm variable is defined' + (fehlend.length ? ' (missing: ' + fehlend.join(', ') + ')' : ''), '0', fehlend.length);
+
     const dom = new JSDOM(html.replace('<head>', '<head>' + attrappe), {
         runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://127.0.0.1/fake'
     });

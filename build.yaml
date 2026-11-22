@@ -1,7 +1,7 @@
 ---
 name: "Cross-Source Merge"
 guid: "6f1c8b52-7d43-4a6e-9c31-2b5e0d7a4f18"
-version: "0.0.1"
+version: "0.0.2"
 targetAbi: "12.4.0.0"
 framework: "net10.0"
 overview: "Merges movies and series from several source folders into one library tree."
