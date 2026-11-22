@@ -10,7 +10,7 @@
         "versions": [
             {
                 "version": "0.0.1",
-                "changelog": "First public alpha, restarting the version line at 0.0.1. Movies and series from several source folders are merged into one library tree using symbolic links; sources are tagged (1 Local, 2 Stream, 3 NAS) and duplicates of the same source are numbered. Categories are their own libraries, missing sources stay visible as a shadow library with placeholders, orphaned targets can be cleaned up. User interface and documentation are in English.",
+                "changelog": "First public alpha. Movies and series from several source folders are merged into one library tree using symbolic links; sources are tagged (1 Local, 2 Stream, 3 NAS) and duplicates of the same source are numbered. Categories are their own libraries, missing sources stay visible as a shadow library with placeholders, orphaned targets can be cleaned up. User interface and documentation are in English.",
                 "targetAbi": "12.4.0.0",
                 "sourceUrl": "https://github.com/HaesslicherBob/jellyfin-cross-source-merge/releases/download/v0.0.1/cross-source-merge-0.0.1.zip",
                 "checksum": "4edbad09e9dadb878fa4aee8ed10ff9e",

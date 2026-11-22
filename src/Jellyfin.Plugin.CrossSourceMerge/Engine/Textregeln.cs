@@ -47,7 +47,7 @@ public static partial class Textregeln
                && kennung.Contains(':', StringComparison.Ordinal);
     }
     /// <summary>Release tags that never belong to the movie title.</summary>
-    private static readonly HashSet<string> SzeneTags = new(StringComparer.Ordinal)
+    private static readonly HashSet<string> ReleaseTags = new(StringComparer.Ordinal)
     {
         "german", "deutsch", "ger", "dl", "dubl", "multi", "md",
         "uhd", "uhdbd", "uhdbluray", "bluray", "blu", "ray", "bdrip", "brrip",
@@ -68,10 +68,10 @@ public static partial class Textregeln
     /// </summary>
     public static string Norm(string name)
     {
-        // SCENE PREPARATION: strip release tags so that
-        // 'Pulp.Fiction.1994.UHD.HKG...' gets the same key as
-        // 'Pulp Fiction (1994)'.
-        var n = SzeneBereinigen(name);
+        // Strip quality and language tags first, so that
+        // 'Nordlicht.1994.1080p.German' gets the same key as
+        // 'Nordlicht (1994)'.
+        var n = OhneReleaseTags(name);
 
         // 1. Resolve accents: 'Pokemon' -> 'pokemon', not 'pok mon'
         var zerlegt = n.Normalize(NormalizationForm.FormKD);
@@ -211,18 +211,18 @@ public static partial class Textregeln
         .Replace("Ü", "Ue", StringComparison.Ordinal)
         .Replace("ß", "ss", StringComparison.Ordinal);
 
-    /// <summary>Does the name look like a release name? At least two tags.</summary>
-    public static bool IstSzene(string name)
+    /// <summary>Does the name carry at least two release tags?</summary>
+    public static bool IstReleaseName(string name)
     {
         var teile = Regex.Split(name.ToLowerInvariant(), @"[.\s_\-\[\]()]+");
-        var treffer = teile.Count(t => SzeneTags.Contains(t));
+        var treffer = teile.Count(t => ReleaseTags.Contains(t));
         return treffer >= 2;
     }
 
     /// <summary>Strips release tags, returns 'Title (Year)'.</summary>
-    public static string SzeneBereinigen(string name)
+    public static string OhneReleaseTags(string name)
     {
-        if (!IstSzene(name))
+        if (!IstReleaseName(name))
         {
             return name;
         }
@@ -243,7 +243,7 @@ public static partial class Textregeln
         var ende = kandidaten.Length;
         for (var i = 0; i < kandidaten.Length; i++)
         {
-            if (SzeneTags.Contains(kandidaten[i].ToLowerInvariant().Trim('-')))
+            if (ReleaseTags.Contains(kandidaten[i].ToLowerInvariant().Trim('-')))
             {
                 ende = i;
                 break;
@@ -255,7 +255,7 @@ public static partial class Textregeln
 
         // Remove the year from the title - it only belongs in the parentheses.
         // For 'Hundreds of Beavers 2022 ... (2024)' the years differ;
-        // then the year from the scene name applies (2022, the real year).
+        // then the year from the file name applies (2022, the real year).
         string? jahrImTitel = null;
         var m2 = Regex.Match(titel, @"\s+((?:19|20)\d{2})\s*$");
         if (m2.Success)
@@ -297,7 +297,7 @@ public static partial class Textregeln
         var mTag = Regex.Match(name, @"\s*\[((?:tmdb|tvdb|imdb)id-[0-9a-z]+)\]\s*$", RegexOptions.IgnoreCase);
         var tag = mTag.Success ? $" [{mTag.Groups[1].Value}]" : string.Empty;
 
-        name = SzeneBereinigen(name);
+        name = OhneReleaseTags(name);
         var clean = Regex.Replace(name, @"\s*\[[a-z]+id[=\-]\d+\]", string.Empty).Trim();
 
         // Underscores are separators, not hyphens
@@ -341,14 +341,14 @@ public static partial class Textregeln
     }
 
     /// <summary>
-    /// Display name of a source folder. The NFO title is used ONLY for scene
-    /// names - with normal folder names the NFO often swallows the
+    /// Display name of a source folder. The NFO title is used ONLY for names
+    /// carrying release tags - with plain folder names the NFO often swallows the
     /// part number ('Austin Powers 2' -> 'Austin Powers').
     /// </summary>
     public static string DisplayName(string entry, string pfad)
     {
         var jahr = DisplayYear(entry);
-        if (IstSzene(entry))
+        if (IstReleaseName(entry))
         {
             var titel = Nfo.Titel(pfad);
             if (!string.IsNullOrWhiteSpace(titel))

@@ -114,7 +114,7 @@ public sealed class TmdbIndex
                 return bekannt;
             }
 
-            var titel = Textregeln.SzeneBereinigen(name);
+            var titel = Textregeln.OhneReleaseTags(name);
             titel = System.Text.RegularExpressions.Regex.Replace(titel, @"\s*\(\d{4}\)\s*$", string.Empty).Trim();
             if (titel.Length == 0)
             {

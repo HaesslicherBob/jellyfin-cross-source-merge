@@ -10,8 +10,8 @@ disk or is only a stream link.
 The plugin is self-contained: no Python, no helper script, no extra file to keep
 in sync. The only thing to configure is **directories**.
 
-> **Alpha.** Version 0.0.1 is the first release of this line and a first draft:
-> the core works — it runs daily on a production server — but the API, the
+> **Alpha.** Version 0.0.1 is the first public release and a first draft: the
+> core works — it runs daily on a production server — but the API, the
 > configuration file and the settings page may still change. Read the notes at the
 > end before pointing it at a library you care about.
 
@@ -85,15 +85,15 @@ distinguishes sources there.
 Afterwards point two Jellyfin libraries at the two target folders (movies and
 series). A library scan is not triggered by the plugin.
 
-### Upgrading from 2.2.10
+### Settings that still carry two folders in one row
 
-Up to 2.2.10 a row carried two folders (`MoviesPath`, `SeriesPath`). On the first
-start of 2.2.11 the plugin splits such rows in memory: the movie folder keeps tag
+A configuration can hold rows with two folders in one entry (`MoviesPath`,
+`SeriesPath`). On start such a row is split in memory: the movie folder keeps tag
 and rank, the series folder gets `<Tag> Series` and a rank above the highest so
-far. It is stored with the next save of the settings page. Because the naming
-rule changed, target files are named differently after the first run; old files
-stay where they are and have to be removed by hand — in practice: empty the
-target folders once and merge again, or use the *Cleanup* tab.
+far, and both are stored with the next save of the settings page. Because the
+naming rule builds the target name from a single folder, renamed targets appear
+after the first run; files created under the old name stay where they are. Empty
+the target folders once and merge again, or use the *Cleanup* tab.
 
 ## Naming rule
 
@@ -127,9 +127,9 @@ Toy Story 5 (2026) [tmdbid-1084244]/   -> versions: 1 Local, 2 Stream 1,
 - Title and year come from the Jellyfin library (the `[tmdbid-…]` tag is supplied
   by Jellyfin itself). Without an id the previous folder name stays — an
   imperfect name is better than a wrong one.
-- Scene names (`Pulp.Fiction.1994.German.DL.1080p.BluRay.x264-GRP`), doubled
-  years, separators and language tags are reduced to the same comparison key so
-  the same file from two sources finds itself.
+- Extra tags in a name (resolution, source, language, codec) and doubled years
+  or separators are reduced to the same comparison key, so the same title from two
+  sources finds itself (`Nordlicht.1994.1080p.German` -> `nordlicht 1994`).
 - Articles and numbers in a title are kept (`The Matrix` stays `The Matrix`,
   `Blade Runner 2049` stays `Blade Runner 2049`).
 - A name is never appended twice: if the previous folder name already ends in a
@@ -480,9 +480,6 @@ file can be taken over from an earlier solution; it is plain JSON.
   (`Kennung`, `Zielpfad`, `Quelle`, ...). They are not user-visible in Jellyfin but
   they show up in scripts and in the XML file. Renaming them is a breaking change
   and is planned for a later release together with a migration step.
-- This repository starts at 0.0.1 with a fresh history; the earlier
-  2.x line lives in the archived repository
-  [jellyfin-plugin-cross-source-merge](https://github.com/HaesslicherBob/jellyfin-plugin-cross-source-merge).
 - Built and exercised on Linux (Proxmox, .NET 10, Jellyfin 12.4). Windows and
   macOS code paths exist and are covered by unit tests, but are not field-tested
   by the author.

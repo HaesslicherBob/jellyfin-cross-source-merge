@@ -423,7 +423,7 @@ public sealed class MergeLauf
         var liste = new List<Quelle>();
         foreach (var q in cfg.Quellen)
         {
-            // New rows carry one folder; old ones (up to 2.2.10) still two.
+            // A regular row carries one folder; a legacy row still two.
             var pfad = string.IsNullOrWhiteSpace(q.Pfad)
                 ? (istSerie ? q.SerienPfad : q.FilmePfad)
                 : q.Pfad;

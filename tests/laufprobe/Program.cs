@@ -250,13 +250,13 @@ Pruefe(
     "10 Cloverfield Lane (2016) [tmdbid-333371]",
     Textregeln.Canonical("10 Cloverfield Lane (2016) [tmdbid-333371]"));
 
-// Comparison key: scene names and normal names must coincide.
+// Comparison key: dotted names with release tags and plain names must coincide.
 Pruefe(
-    "Norm scene == Norm name",
-    Textregeln.Norm("Pulp Fiction (1994)"),
-    Textregeln.Norm("Pulp.Fiction.1994.German.DL.1080p.BluRay.x264-GRP"));
+    "Norm dotted == Norm name",
+    Textregeln.Norm("Nordlicht (1994)"),
+    Textregeln.Norm("Nordlicht.1994.German.DL.1080p.BluRay"));
 
-Pruefe("Norm scene", "pulp fiction 1994", Textregeln.Norm("Pulp.Fiction.1994.German.DL.1080p.BluRay.x264-GRP"));
+Pruefe("Norm dotted", "nordlicht 1994", Textregeln.Norm("Nordlicht.1994.German.DL.1080p.BluRay"));
 
 // Articles must NOT disappear - otherwise 'Der Blade Runner'
 // and 'Blade Runner' collide.

@@ -3,10 +3,10 @@ using System.Globalization;
 namespace Jellyfin.Plugin.CrossSourceMerge.Engine;
 
 /// <summary>
-/// Relocation of the source list: up to 2.2.10 a row carried two folders
-/// (movies and series). Since 2.2.11 a row is a folder - that way rank and
-/// source tag can be set per folder; the rank sorts the sources but does not
-/// appear in any file name.
+/// Relocation of the source list: a legacy row carries two folders (movies and
+/// series). A regular row is a single folder - that way rank and source tag can
+/// be set per folder; the rank sorts the sources but does not appear in any
+/// file name.
 /// </summary>
 public static class Umzug
 {

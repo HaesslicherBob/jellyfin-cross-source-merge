@@ -274,7 +274,7 @@ public static class Bestand
     /// <summary>
     /// Title and year from a folder name. Dots and underscores count as
     /// separators when the name has no spaces otherwise - that is how
-    /// scene folders are named ("Der.Herr.der.Ringe.-.Die.Rueckkehr.des.Koenigs.2003").
+    /// dotted folder names arrive ("Ein.Film.Titel.2003").
     /// </summary>
     private static (string Titel, int? Jahr) Lesen(string name)
     {
