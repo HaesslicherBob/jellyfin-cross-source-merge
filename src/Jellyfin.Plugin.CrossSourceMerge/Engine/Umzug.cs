@@ -73,11 +73,11 @@ public static class Umzug
                     rang = hoechster;
                 }
 
-                // Since 2.2.12 uniqueness counts per media kind: the series
-                // row may carry the same tag as the movie row, then both
-                // trees show "3 NAS". Only when the kinds cannot be told
-                // apart (no default category) does it need the suffix -
-                // otherwise the entries collide.
+                // Uniqueness counts per media kind: the series row may carry
+                // the same tag as the movie row, then both trees show "3 NAS".
+                // Only when the kinds cannot be told apart (no default
+                // category) does it need the suffix - otherwise the entries
+                // collide.
                 var zusatz = filmStandard.Length > 0 && serieStandard.Length > 0 ? string.Empty : " Serien";
                 neu.Add(new QuelleKonfig
                 {
