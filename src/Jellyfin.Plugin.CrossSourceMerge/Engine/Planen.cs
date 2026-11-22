@@ -71,7 +71,8 @@ public static class Planen
         IReadOnlyDictionary<string, Gruppe> gruppen,
         string zielwurzel,
         IReadOnlyList<Quelle> quellen,
-        IReadOnlySet<string>? nurSchluessel = null)
+        IReadOnlySet<string>? nurSchluessel = null,
+        bool folgenErfinden = false)
     {
         var plan = new List<PlanEintrag>();
         var reihenfolge = quellen.OrderBy(q => q.Rang).ThenBy(q => q.Kennung, StringComparer.Ordinal).ToList();
@@ -85,7 +86,24 @@ public static class Planen
 
             foreach (var (kennung, beitrag) in g.Beitraege)
             {
-                foreach (var (fach, dateien) in beitrag.Folgen)
+                var folgen = beitrag.Folgen;
+                if (folgen.Count == 0 && folgenErfinden)
+                {
+                    // A film folder that is really a series carries no episode
+                    // numbers. Then each file becomes one episode in name order
+                    // - a single file is S01E01, and the title lands in the
+                    // series tree instead of nowhere.
+                    folgen = new Dictionary<(int Staffel, int Folge), List<string>>();
+                    var nummer = 1;
+                    foreach (var datei in beitrag.AlleDateien()
+                        .OrderBy(d => Path.GetFileName(d), StringComparer.OrdinalIgnoreCase))
+                    {
+                        folgen[(1, nummer)] = new List<string> { datei };
+                        nummer++;
+                    }
+                }
+
+                foreach (var (fach, dateien) in folgen)
                 {
                     if (dateien.Count == 0)
                     {

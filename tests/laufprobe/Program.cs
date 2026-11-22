@@ -291,6 +291,34 @@ Pruefe("Year trap 1930", "true", Textregeln.JahresFalle("1930").ToString().ToLow
 Pruefe("Year trap 10009", "false", Textregeln.JahresFalle("10009").ToString().ToLowerInvariant());
 Pruefe("Year trap 1800", "false", Textregeln.JahresFalle("1800").ToString().ToLowerInvariant());
 
+// A film that is really a series (a miniseries sold as one film): the folder
+// carries no episode numbers, yet the title has to become S01E01 - otherwise
+// the switch would find the right id and the merge would still write nothing.
+var esGruppe = new Gruppe
+{
+    Schluessel = "tmdb:1961",
+    Anzeigename = "Stephen King's Es (1990) [tmdbid-1961]",
+    TmdbId = "1961"
+};
+esGruppe.Beitraege["1 Probe"] = new Quellenbeitrag
+{
+    Wurzel = "/probe/1",
+    Ordner = "/probe/1/Es (1990)",
+    Datei = "/probe/1/Es (1990)/Es (1990).mkv"
+};
+var esQuellen = new List<Quelle>
+{
+    new Quelle { Kennung = "1 Probe", Art = Quellenart.Lokal, Rang = 0, Pfad = "/probe/1" }
+};
+var esGruppen = new Dictionary<string, Gruppe>(StringComparer.Ordinal) { [esGruppe.Schluessel] = esGruppe };
+var esPlan = Planen.Serien(esGruppen, "/ziel-serien", esQuellen, folgenErfinden: true);
+Pruefe("Film as series: one episode", "1", esPlan.Count.ToString());
+Pruefe("Film as series: season folder", "true", esPlan.Any(e => e.Ziel.Contains("Season 01")).ToString().ToLowerInvariant());
+Pruefe("Film as series: episode name", "true", esPlan.Any(e => e.Ziel.Contains("S01E01")).ToString().ToLowerInvariant());
+Pruefe("Film as series: marked as series", "true", esPlan.All(e => e.IstSerie).ToString().ToLowerInvariant());
+Pruefe("Film as series: opt-in only", "0",
+    Planen.Serien(esGruppen, "/ziel-serien", esQuellen, folgenErfinden: false).Count.ToString());
+
 // Names: do not duplicate suffixes, rearrange the trap.
 Pruefe("Name without suffix", "Horizon", Textregeln.TitelOhneAnhang("Horizon (2024) [tmdbid-1377119]"));
 Pruefe(

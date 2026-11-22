@@ -187,6 +187,10 @@ public class BestandController : ControllerBase
                 .Select(k => k.Name)
                 .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
                 .ToList(),
+
+            // Default category of the other kind: a film that is really a
+            // series is filed there in one step, without picking a tree first.
+            fremdeStandard = Kategorien.Standard(cfg.Kategorien, !serie)?.Name,
             quellen = cfg.Quellen.Select(q => q.Kennung).ToList(),
             standardKategorie = Kategorien.Standard(cfg.Kategorien, serie)?.Name,
             tmdbSchluessel = !string.IsNullOrWhiteSpace(cfg.TmdbSchluessel),

@@ -17,12 +17,13 @@ function P(v) {
 function KONFIG() {
     return { Quellen: [{ Kennung: '1 Lokal', Art: 'Lokal', Rang: 10, Pfad: '/q', StandardKategorie: '' }],
              Kategorien: [{ Name: 'Filme', IstSerie: false, Zielpfad: '/z/filme', Standard: true },
-                          { Name: 'Dokumentationen', IstSerie: false, Zielpfad: '/z/doku' }],
+                          { Name: 'Dokumentationen', IstSerie: false, Zielpfad: '/z/doku' },
+                          { Name: 'Serien', IstSerie: true, Zielpfad: '/z/serien', Standard: true }],
              TmdbSprache: 'de-DE', IntervallMinuten: 15, SicherungenBehalten: 20 };
 }
 var BESTAND = {
     seiten: 1, gesamt: 2,
-    kategorien: ['Filme', 'Dokumentationen'], standardKategorie: 'Filme',
+    kategorien: ['Filme', 'Dokumentationen'], standardKategorie: 'Filme', fremdeStandard: 'Serien',
     zeilen: [
         { art: 'movie', ordner: 'Irgendein Film (2020)', quelle: '1 Lokal', pfad: '/q/Irgendein Film (2020)',
           istId: '123', istHerkunft: 'name', istName: 'Irgendein Film', istJahr: 2020,
@@ -101,6 +102,27 @@ const warte = (ms) => new Promise(r => setTimeout(r, ms));
     pruefe('saved multi-selection is visible', 'true|true',
         [...zweite.querySelectorAll('.csm-kat:not(.std)')].map(b => b.getAttribute('aria-pressed')).join('|'));
     pruefe('status line shows both', '\u2192 Filme, Dokumentationen', zweite.querySelector('.csm-kat-stand').textContent);
+
+    // A film that is really a series: the switch changes the search kind and
+    // files the title into the series tree in the same step - without it the
+    // wrong id would keep winning and the film would never reach its tree.
+    const schalter = zweite.querySelector('.csm-serie input');
+    pruefe('series switch on a film row', 'true', !!schalter);
+    w.__aufrufe.length = 0;
+    schalter.click();
+    await warte(200);
+    const suche = w.__aufrufe.filter(a => /Kennung\/Suche/.test(a.url)).pop();
+    pruefe('switch searches as series', 'true', /serie=true/.test(suche.url));
+
+    w.__aufrufe.length = 0;
+    [...zweite.querySelectorAll('button')].find(b => b.textContent.trim() === 'Apply').click();
+    await warte(300);
+    const zuordnung = w.__aufrufe.filter(a => a.art === 'POST' && /Zuordnung/.test(a.url))[0];
+    pruefe('apply keeps the film namespace', 'movie', zuordnung.koerper.Art);
+    pruefe('apply marks it as a series', 'true', String(zuordnung.koerper.Serie));
+    const katPost = w.__aufrufe.filter(a => a.art === 'POST' && /Kategorie/.test(a.url))[0];
+    pruefe('apply files it into the series tree', 'true',
+        !!katPost && katPost.koerper.Kategorien.indexOf('Serien') >= 0);
 
     w.__aufrufe.length = 0;
     [...erste.querySelectorAll('.csm-kat')].find(b => b.textContent === 'Dokumentationen').click();

@@ -63,6 +63,19 @@ public sealed class MergeLauf
             {
                 var quellen = Quellen(cfg, istSerie);
                 var kategorien = Kategorien.Liste(cfg.Kategorien, istSerie);
+
+                // The category carries the art: a film that is really a series
+                // gets a series category and is then written as a series into
+                // that tree (season folder, S01E01). Without this the work would
+                // sit in the list, mapped, and nothing would happen - the
+                // series categories were simply not looked at in the film pass.
+                if (!istSerie)
+                {
+                    kategorien = kategorien
+                        .Concat(Kategorien.Liste(cfg.Kategorien, true))
+                        .ToList();
+                }
+
                 if (quellen.Count == 0 || kategorien.Count == 0)
                 {
                     continue;
@@ -102,20 +115,24 @@ public sealed class MergeLauf
                         continue;
                     }
 
-                    var plan = istSerie
-                        ? Planen.Serien(gruppen, kat.Zielpfad, quellen, schluessel)
+                    // From here on the category decides, not the pass: a title in
+                    // a foreign tree is planned, named and noted the way that
+                    // tree is built.
+                    var katSerie = kat.IstSerie;
+                    var plan = katSerie
+                        ? Planen.Serien(gruppen, kat.Zielpfad, quellen, schluessel, folgenErfinden: !istSerie)
                         : Planen.Filme(gruppen, kat.Zielpfad, quellen, schluessel);
 
                     // Entries whose source is currently gone stay in place.
-                    var schatten = Schatten.Pfade(kat.Zielpfad, istSerie, tot, _log);
+                    var schatten = Schatten.Pfade(kat.Zielpfad, katSerie, tot, _log);
                     foreach (var pfad in schatten.Keys)
                     {
-                        plan.Add(new PlanEintrag { Ziel = pfad, Quelle = null, IstSerie = istSerie });
+                        plan.Add(new PlanEintrag { Ziel = pfad, Quelle = null, IstSerie = katSerie });
                     }
 
                     if (!cfg.NurPlanen)
                     {
-                        Merken(plan, quellen, zustand, istSerie, ffprobe);
+                        Merken(plan, quellen, zustand, katSerie, ffprobe);
                         PruefeZiel(kat.Zielpfad, verweiseGeprueft);
                     }
 
@@ -132,7 +149,7 @@ public sealed class MergeLauf
 
                     if (!cfg.NurPlanen && cfg.NfoSchreiben)
                     {
-                        SchreibNfo(plan, gruppen, istSerie, cfg.NfoJahrKorrigieren, bericht);
+                        SchreibNfo(plan, gruppen, katSerie, cfg.NfoJahrKorrigieren, bericht);
                     }
 
                     if (!cfg.NurPlanen)
@@ -147,7 +164,7 @@ public sealed class MergeLauf
                                 continue;
                             }
 
-                            var ordnerPfad = istSerie
+                            var ordnerPfad = katSerie
                                 ? Path.GetDirectoryName(Path.GetDirectoryName(e.Ziel))
                                 : Path.GetDirectoryName(e.Ziel);
                             if (ordnerPfad is not null)

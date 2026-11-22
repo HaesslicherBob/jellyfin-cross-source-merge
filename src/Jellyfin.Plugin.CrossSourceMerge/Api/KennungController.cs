@@ -184,7 +184,9 @@ public class KennungController : ControllerBase
         };
 
         // The name belongs to the title, not to the folder: so the target folder
-        // carries the title someone confirmed here.
+        // carries the title someone confirmed here. The namespace is the art of
+        // the source, not of the work: a film that is really a series keeps its
+        // name under "movie", otherwise the film list would not find it.
         if (!string.IsNullOrWhiteSpace(name))
         {
             var werkName = jahrWert is null
@@ -192,7 +194,10 @@ public class KennungController : ControllerBase
                 : string.Format(CultureInfo.InvariantCulture, "{0} ({1})", name, jahrWert);
             if (tag is not null)
             {
-                zustand.Namen[Zustand.Schluessel(anfrage.Serie ? "series" : "movie", Textregeln.IstFremd(tag) ? tag : "tmdb:" + tag)] = werkName;
+                var art = string.IsNullOrWhiteSpace(anfrage.Art)
+                    ? (anfrage.Serie ? "series" : "movie")
+                    : anfrage.Art!.Trim().ToLowerInvariant();
+                zustand.Namen[Zustand.Schluessel(art, Textregeln.IstFremd(tag) ? tag : "tmdb:" + tag)] = werkName;
             }
         }
 
@@ -433,6 +438,14 @@ public class KennungController : ControllerBase
 
         /// <summary>Is this a series?</summary>
         public bool Serie { get; set; }
+
+        /// <summary>
+        /// Art of the source the folder belongs to ("movie" or "series"). Only
+        /// the namespace of the stored name and of the folder mapping - which
+        /// tree the title lands in is decided by its category. Empty = as
+        /// before: Serie decides.
+        /// </summary>
+        public string? Art { get; set; }
 
         /// <summary>Title, if saving without a key.</summary>
         public string? Name { get; set; }

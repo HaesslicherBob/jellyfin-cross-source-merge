@@ -227,6 +227,16 @@
             border-radius: 3px; font-size: .74em; background: var(--csm-flaeche2); white-space: nowrap;
         }
         .csm-kats { display: flex; flex-wrap: wrap; gap: .3em; }
+        .csm-serie {
+            display: flex;
+            align-items: center;
+            gap: .35em;
+            margin-top: .35em;
+            font-size: .85em;
+            color: var(--csm-text-leise);
+            cursor: pointer;
+        }
+        .csm-serie input { margin: 0; }
         #CrossSourceMergeConfigPage button.csm-kat {
             background: none; border: 1px solid var(--csm-rand); border-radius: 999px;
             font-size: .68em; padding: .1em .5em; opacity: .75; line-height: 1.7;
@@ -1641,6 +1651,34 @@
             idZelle.appendChild(anbieterZeile);
             idZelle.appendChild(idBox);
             idZelle.appendChild(knopfBox);
+
+            // A film that is really a series (a miniseries sold as one film):
+            // the switch changes the search kind and, on apply, files the title
+            // into the series tree. One click instead of a wrong id plus a
+            // hand-picked tree - without it the wrong id would win every time.
+            var serieFeld = null;
+            if (z.art !== 'series' && blatt.fremdeStandard) {
+                var serieLabel = document.createElement('label');
+                serieLabel.className = 'csm-serie';
+                serieFeld = document.createElement('input');
+                serieFeld.type = 'checkbox';
+                serieFeld.addEventListener('change', function () {
+                    meldung('zuordnungMeldung', serieFeld.checked
+                        ? 'This is a series: searching as series, result goes to "' + blatt.fremdeStandard + '".'
+                        : 'Series off: searching films again.');
+                    suchen.click();
+                });
+                serieLabel.appendChild(serieFeld);
+                serieLabel.appendChild(document.createTextNode(
+                    'This is a series \u2192 "' + blatt.fremdeStandard + '"'));
+                serieLabel.title = 'Searches TMDB for a series and files the title into "' + blatt.fremdeStandard + '"';
+                idZelle.appendChild(serieLabel);
+            }
+
+            function istSerieJetzt() {
+                return (serieFeld !== null && serieFeld.checked) || z.art === 'series';
+            }
+
             zelle(idZelle, null, 'ID');
 
             // title and year, editable
@@ -1691,7 +1729,7 @@
                 leiste.title = leiste.textContent;
             }
 
-            function katSenden() {
+            function katSenden(leise) {
                 katBox.classList.add('speichert');
                 api('Kategorie', null, 'POST', {
                     Ordner: z.ordner,
@@ -1703,9 +1741,11 @@
                     katBox.classList.remove('speichert');
                     gewaehlt = (e.kategorien || []).slice();
                     katStand();
-                    meldung('zuordnungMeldung',
-                        '"' + z.ordner + '" → '
-                        + (gewaehlt.length ? gewaehlt.join(', ') : 'Standard'), 'ok');
+                    if (!leise) {
+                        meldung('zuordnungMeldung',
+                            '"' + z.ordner + '" → '
+                            + (gewaehlt.length ? gewaehlt.join(', ') : 'Standard'), 'ok');
+                    }
                 }, function (xhr) {
                     katBox.classList.remove('speichert');
                     var text = 'Category not saved.';
@@ -1773,7 +1813,7 @@
                 if (!id) { meldung('zuordnungMeldung', 'No id given.', 'bad'); return; }
                 laden.disabled = true;
                 meldung('zuordnungMeldung', 'Loading info from ' + wahl.toUpperCase() + ' ...');
-                api('Kennung', { anbieter: wahl, kennung: id, serie: z.art === 'series' }).then(function (t) {
+                api('Kennung', { anbieter: wahl, kennung: id, serie: istSerieJetzt() }).then(function (t) {
                     laden.disabled = false;
                     if (!t.gefunden) {
                         meldung('zuordnungMeldung', t.hinweis || 'Not found.', 'bad');
@@ -1796,7 +1836,7 @@
             suchen.addEventListener('click', function () {
                 suchen.disabled = true;
                 meldung('zuordnungMeldung', 'Searching for "' + (z.istName || z.ordner) + '" ...');
-                api('Kennung/Suche', { name: z.istName || z.ordner, jahr: z.istJahr || '', serie: z.art === 'series' })
+                api('Kennung/Suche', { name: z.istName || z.ordner, jahr: z.istJahr || '', serie: istSerieJetzt() })
                     .then(function (t) {
                         suchen.disabled = false;
                         if (!t.gefunden) {
@@ -1822,16 +1862,31 @@
                     Ordner: z.ordner,
                     Anbieter: anbieter.value || 'tmdb',
                     Kennung: kennung.value.trim(),
-                    Serie: z.art === 'series',
+                    Serie: istSerieJetzt(),
+                    Art: z.art,
                     Name: nameFeld.value.trim(),
                     Jahr: parseInt(jahrFeld.value, 10) || null
                 }).then(function (e) {
                     uebernehmen.disabled = false;
                     tr.className = 'erledigt';
                     offenZaehlen(-1);
+
+                    // A film that is really a series lands in the series tree in
+                    // the same step - otherwise it would be written as a film
+                    // (or not at all) and the switch would be a lie.
+                    var baum = '';
+                    if (istSerieJetzt() && z.art !== 'series' && blatt.fremdeStandard
+                        && gewaehlt.indexOf(blatt.fremdeStandard) < 0) {
+                        gewaehlt.push(blatt.fremdeStandard);
+                        katStand();
+                        katSenden(true);
+                        baum = ' \u00b7 tree "' + blatt.fremdeStandard + '"';
+                    }
+
                     meldung('zuordnungMeldung',
                         'Applied: ' + (e.name || '') + (e.jahr ? ' (' + e.jahr + ')' : '')
-                        + (e.tmdbId ? ' · TMDB ' + e.tmdbId : '') + ' - the row disappears on the next refresh.', 'ok');
+                        + (e.tmdbId ? ' \u00b7 TMDB ' + e.tmdbId : '') + baum
+                        + ' - the row disappears on the next refresh.', 'ok');
                 }, function (xhr) {
                     uebernehmen.disabled = false;
                     var text = 'Apply failed.';
@@ -1898,6 +1953,9 @@
                 blatt.fremdeKategorien = d.fremdeKategorien || [];
                 blatt.quellen = d.quellen || [];
                 blatt.standardKategorie = d.standardKategorie || '';
+                // Default tree of the other kind: a film that is really a series
+                // needs a series target, without picking one by hand.
+                blatt.fremdeStandard = d.fremdeStandard || '';
                 legendeBauen(d.quellen, d.kategorien, d.fremdeKategorien);
                 alleKategorien = (d.kategorien || []).concat(d.fremdeKategorien || []);
                 zeige.offen = d.offen || 0;
