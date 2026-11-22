@@ -1,6 +1,11 @@
 # Cross-Source Merge for Jellyfin
 
 [![Build](https://github.com/HaesslicherBob/jellyfin-cross-source-merge/actions/workflows/build.yml/badge.svg)](https://github.com/HaesslicherBob/jellyfin-cross-source-merge/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/HaesslicherBob/jellyfin-cross-source-merge?include_prereleases&label=release&color=7c5cff)](https://github.com/HaesslicherBob/jellyfin-cross-source-merge/releases)
+[![Jellyfin](https://img.shields.io/badge/Jellyfin-12.4-00a4dc)](https://jellyfin.org)
+[![Licence](https://img.shields.io/github/license/HaesslicherBob/jellyfin-cross-source-merge?color=35c4a0)](LICENSE)
+
+<img src="docs/banner.png" alt="Cross-Source Merge: several source folders become one library entry with one selectable version per source" width="100%">
 
 A Jellyfin plugin that merges movies and series from several source folders into
 **one** target tree — as symbolic links, never as copies. Jellyfin then sees a
@@ -19,7 +24,7 @@ in sync. The only thing to configure is **directories**.
 
 - reads the source folders and groups them by TMDB id, title and year
 - creates one folder per title in the target, holding one file per source
-  - `Dune: Part Two (2024) [tmdbid-693134]/Dune: Part Two (2024) [tmdbid-693134] - 1 Local.mkv`
+  - `Northern Light (2024) [tmdbid-118742]/Northern Light (2024) [tmdbid-118742] - 1 Local.mkv`
   - `... - 2 Stream.strm`, `... - 3 NAS.mkv` — Jellyfin offers the versions for selection
 - for series: `<Title>/Season 01/<Title> - S01E01 - 1 Local.mkv`
 - when a source is missing (NAS off) the existing links stay in place —
@@ -29,6 +34,19 @@ in sync. The only thing to configure is **directories**.
 
 Nothing happens without you: the task has no schedule, and the first setting is
 **dry run** (it only calculates and logs).
+
+<img src="docs/how-it-works.png" alt="Two source trees with different folder layouts merge into one target tree with one symlink per source" width="100%">
+
+Two folders, two naming schemes, one entry. The target holds links — the files
+stay exactly where they are, and the source can keep its own layout.
+
+## What it looks like in Jellyfin
+
+<img src="docs/jellyfin-versions.png" alt="Jellyfin item page showing one series with three selectable versions: 1 Local, 2 Stream, 3 NAS" width="100%">
+
+The source tag is the version label. **1 Local**, **2 Stream** and **3 NAS** are
+the same episode; the metadata, watched state and artwork belong to the entry,
+not to the file.
 
 ## Installation
 
@@ -290,6 +308,12 @@ The page has five tabs:
 | Cleanup | targets without a source: folders and files the plan no longer knows — remove them one by one or all at once |
 | Settings | target folders, schedule, source check, dry run, NFO, cleanup, keys |
 
+<img src="docs/settings-sources.png" alt="Sources table: tag, kind, rank, source folder, default category and the shadow switch per row" width="100%">
+
+One row per source folder: the tag becomes the version label, the rank decides
+which source wins, the shadow switch keeps that source's entries visible while
+its mount is gone.
+
 ### Categories (documentaries, TV shows, events)
 
 The category is the library, not the kind. Create it in the *Sources &
@@ -392,6 +416,8 @@ alpha, renaming them now would break the page and any script on your side.
 
 ## Shadow library
 
+<img src="docs/shadow-library.png" alt="Comparison: a plain symlink into a missing mount loses the episode on the next scan, a shadow placeholder keeps the entry" width="100%">
+
 When a source cannot be reached (NAS off, mount gone) every existing entry stays:
 the link is neither checked nor deleted, and the dead mount is not touched.
 
@@ -483,5 +509,7 @@ file can be taken over from an earlier solution; it is plain JSON.
 - Built and exercised on Linux (Proxmox, .NET 10, Jellyfin 12.4). Windows and
   macOS code paths exist and are covered by unit tests, but are not field-tested
   by the author.
+- The images in `docs/` are rendered mockups with invented titles, not photos of a
+  running library — see [docs/README.md](docs/README.md) for the sources.
 - Bug reports are welcome; please include the log lines mentioning
   `Cross-Source Merge` and your Jellyfin version.

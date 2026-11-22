@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e16"/>
+      <stop offset="0.55" stop-color="#0d1220"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.12" cy="0.05" r="0.75">
+      <stop offset="0" stop-color="#7c5cff" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#7c5cff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.95" cy="1.0" r="0.6">
+      <stop offset="0" stop-color="#35c4a0" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#35c4a0" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.028" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="300" fill="url(#bg)"/>
+  <rect width="1200" height="300" fill="url(#grid)"/>
+  <rect width="1200" height="300" fill="url(#glow)"/>
+  <rect width="1200" height="300" fill="url(#glow2)"/>
+
+  <!-- left: claim -->
+  <g font-family="Inter">
+    <rect x="56" y="56" width="196" height="28" rx="14" fill="#7c5cff" fill-opacity="0.14" stroke="#7c5cff" stroke-opacity="0.38"/>
+    <circle cx="74" cy="70" r="3.5" fill="#a99cff"/>
+    <text x="86" y="75" font-size="12.5" font-weight="600" fill="#bdb2ff" letter-spacing="0.5">Jellyfin 12.4 · alpha 0.0.1</text>
+
+    <text x="54" y="146" font-size="54" font-weight="700" fill="#f4f6fa" letter-spacing="-1.2">Cross-Source Merge</text>
+    <text x="56" y="186" font-size="19" fill="#98a2b4">One library entry per title, however many folders hold it.</text>
+    <text x="56" y="214" font-size="19" fill="#98a2b4">Sources that are offline right now stay visible.</text>
+
+    <g font-size="12.5" fill="#6f7a8f" font-weight="500" letter-spacing="0.3">
+      <text x="56" y="262">OMV NAS</text>
+      <text x="140" y="262" fill="#3d4657">·</text>
+      <text x="156" y="262">external server</text>
+      <text x="284" y="262" fill="#3d4657">·</text>
+      <text x="300" y="262">Proxmox mount</text>
+    </g>
+  </g>
+
+  <!-- right: what the target looks like -->
+  <g font-family="Inter">
+    <rect x="742" y="52" width="402" height="196" rx="18" fill="#111826" fill-opacity="0.92" stroke="#252d3d" stroke-width="1.2"/>
+    <rect x="742" y="52" width="402" height="196" rx="18" fill="none" stroke="#7c5cff" stroke-opacity="0.16" stroke-width="1.2"/>
+
+    <text x="770" y="90" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#eef1f7">Northern Light (2024)</text>
+    <text x="770" y="112" font-family="JetBrains Mono" font-size="12" fill="#77839a">[tmdbid-118742]  ·  Season 01</text>
+    <line x1="770" y1="128" x2="1116" y2="128" stroke="#232b3b" stroke-width="1"/>
+
+    <g font-size="12.5" font-weight="600">
+      <rect x="770" y="142" width="86" height="26" rx="13" fill="#35c4a0" fill-opacity="0.14" stroke="#35c4a0" stroke-opacity="0.45"/>
+      <circle cx="784" cy="155" r="3" fill="#35c4a0"/>
+      <text x="794" y="160" fill="#7fe0c4">1 Local</text>
+
+      <rect x="864" y="142" width="96" height="26" rx="13" fill="#7c5cff" fill-opacity="0.16" stroke="#7c5cff" stroke-opacity="0.5"/>
+      <circle cx="878" cy="155" r="3" fill="#a99cff"/>
+      <text x="888" y="160" fill="#bdb2ff">2 Stream</text>
+
+      <rect x="968" y="142" width="78" height="26" rx="13" fill="#f0a54a" fill-opacity="0.14" stroke="#f0a54a" stroke-opacity="0.45"/>
+      <circle cx="982" cy="155" r="3" fill="#f0a54a"/>
+      <text x="992" y="160" fill="#f3c286">3 NAS</text>
+    </g>
+
+    <text x="770" y="198" font-family="JetBrains Mono" font-size="11.5" fill="#5f6b80">S01E01 · 1 Local.mkv</text>
+    <text x="770" y="216" font-family="JetBrains Mono" font-size="11.5" fill="#5f6b80">S01E01 · 2 Stream.mkv</text>
+    <text x="770" y="234" font-family="JetBrains Mono" font-size="11.5" fill="#5f6b80">S01E01 · 3 NAS.mkv</text>
+
+    <text x="940" y="198" font-size="12" fill="#6f7a8f">→ three versions,</text>
+    <text x="940" y="216" font-size="12" fill="#6f7a8f">one library entry</text>
+  </g>
+</svg>

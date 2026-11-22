@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e16"/><stop offset="1" stop-color="#101725"/>
+    </linearGradient>
+    <marker id="arrowT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#35c4a0"/>
+    </marker>
+    <marker id="arrowV" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#7c5cff"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="560" fill="url(#bg)"/>
+  <rect width="1200" height="560" fill="none" stroke="#1b2434" stroke-width="2"/>
+
+  <g font-family="Inter">
+    <text x="40" y="44" font-size="13" font-weight="600" fill="#6f7a8f" letter-spacing="1.4">SOURCES</text>
+    <text x="700" y="44" font-size="13" font-weight="600" fill="#6f7a8f" letter-spacing="1.4">TARGET — WHAT JELLYFIN SCANS</text>
+  </g>
+
+  <!-- source A -->
+  <g>
+    <rect x="40" y="62" width="392" height="150" rx="14" fill="#101724" stroke="#233042" stroke-width="1.2"/>
+    <rect x="40" y="62" width="4" height="150" rx="2" fill="#35c4a0" fill-opacity="0.85"/>
+    <g font-family="Inter">
+      <circle cx="70" cy="88" r="4" fill="#35c4a0"/>
+      <text x="82" y="93" font-size="13" font-weight="600" fill="#7fe0c4">1 Local</text>
+      <text x="146" y="93" font-size="12.5" fill="#6f7a8f">OMV NAS</text>
+    </g>
+    <g font-family="JetBrains Mono" font-size="12.5" fill="#93a0b5">
+      <text x="66" y="124">/Raid/Movies/TV Shows/</text>
+      <text x="66" y="146" fill="#6b7791">└ Northern Light/Season 01/</text>
+      <text x="66" y="168" fill="#c9d3e2">Northern Light - S01E01.mkv</text>
+    </g>
+  </g>
+
+  <!-- source B -->
+  <g>
+    <rect x="40" y="316" width="440" height="178" rx="14" fill="#101724" stroke="#233042" stroke-width="1.2"/>
+    <rect x="40" y="316" width="4" height="178" rx="2" fill="#7c5cff" fill-opacity="0.85"/>
+    <g font-family="Inter">
+      <circle cx="70" cy="342" r="4" fill="#a99cff"/>
+      <text x="82" y="347" font-size="13" font-weight="600" fill="#bdb2ff">2 Stream</text>
+      <text x="160" y="347" font-size="12.5" fill="#6f7a8f">external server, mounted on demand</text>
+    </g>
+    <g font-family="JetBrains Mono" font-size="12.5" fill="#93a0b5">
+      <text x="66" y="378">/media/emby/TV Shows/</text>
+      <text x="66" y="400" fill="#6b7791">└ Northern Light (2024)</text>
+      <text x="82" y="422" fill="#6b7791">[tmdbid-118742]/Season 1/</text>
+      <text x="66" y="444" fill="#c9d3e2">Northern Light - S01E01 - 1080p.mkv</text>
+    </g>
+  </g>
+
+  <!-- connectors -->
+  <path d="M432 150 C 570 150, 600 214, 694 214" fill="none" stroke="#35c4a0" stroke-opacity="0.75" stroke-width="2" marker-end="url(#arrowT)"/>
+  <path d="M480 400 C 600 400, 620 294, 694 294" fill="none" stroke="#7c5cff" stroke-opacity="0.8" stroke-width="2" marker-end="url(#arrowV)"/>
+
+  <!-- target -->
+  <g>
+    <rect x="700" y="62" width="460" height="432" rx="16" fill="#0e1521" stroke="#2a3448" stroke-width="1.2"/>
+    <g font-family="JetBrains Mono" font-size="12.5">
+      <text x="726" y="104" fill="#8b97ad">/merged/TV Shows/</text>
+      <text x="726" y="130" fill="#eef1f7">└ Northern Light (2024) [tmdbid-118742]</text>
+      <text x="742" y="156" fill="#8b97ad">Season 01/</text>
+    </g>
+    <line x1="726" y1="176" x2="1140" y2="176" stroke="#202a3a" stroke-width="1"/>
+
+    <!-- target rows -->
+    <g font-family="JetBrains Mono" font-size="12">
+      <text x="726" y="212" fill="#c9d3e2">… Northern Light (2024) - S01E01</text>
+      <text x="742" y="232" fill="#5f6b80">- 1 Local.mkv  →  /Raid/Movies/…</text>
+
+      <text x="726" y="292" fill="#c9d3e2">… Northern Light (2024) - S01E01</text>
+      <text x="742" y="312" fill="#5f6b80">- 2 Stream.mkv  →  /media/emby/…</text>
+    </g>
+
+    <g font-family="Inter" font-size="11.5" font-weight="600">
+      <rect x="1044" y="196" width="82" height="24" rx="12" fill="#35c4a0" fill-opacity="0.16" stroke="#35c4a0" stroke-opacity="0.5"/>
+      <text x="1058" y="213" fill="#7fe0c4">1 Local</text>
+      <rect x="1044" y="276" width="92" height="24" rx="12" fill="#7c5cff" fill-opacity="0.18" stroke="#7c5cff" stroke-opacity="0.55"/>
+      <text x="1058" y="293" fill="#bdb2ff">2 Stream</text>
+    </g>
+
+    <line x1="726" y1="346" x2="1140" y2="346" stroke="#202a3a" stroke-width="1"/>
+    <g font-family="Inter">
+      <text x="726" y="378" font-size="12.5" font-weight="600" fill="#98a2b4">Jellyfin sees one show:</text>
+      <text x="726" y="402" font-size="12.5" fill="#6f7a8f">Northern Light · Season 01 · Episode 01</text>
+      <text x="726" y="426" font-size="12.5" fill="#6f7a8f">with 2 selectable versions</text>
+      <g font-size="11.5" fill="#5f6b80">
+        <rect x="726" y="444" width="128" height="26" rx="8" fill="#7c5cff" fill-opacity="0.16" stroke="#7c5cff" stroke-opacity="0.4"/>
+        <text x="742" y="461" fill="#bdb2ff" font-weight="600">Select version</text>
+        <path d="M838 452 l5 6 l5 -6 z" fill="#bdb2ff"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- legend -->
+  <g font-family="Inter" font-size="11.5" fill="#5f6b80">
+    <text x="40" y="524">Entries are grouped by TMDB id, title and year — one symbolic link per source.</text>
+    <text x="40" y="546" fill="#4b5568">The target holds links, not copies: storage stays where it is.</text>
+  </g>
+</svg>

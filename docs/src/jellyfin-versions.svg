@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141a26"/><stop offset="0.45" stop-color="#0b1018"/><stop offset="1" stop-color="#080c12"/>
+    </linearGradient>
+    <linearGradient id="backdrop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b2350" stop-opacity="0.85"/>
+      <stop offset="0.5" stop-color="#16303a" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#0b1018" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="poster" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#2a2f6b"/><stop offset="0.55" stop-color="#1b3d4e"/><stop offset="1" stop-color="#0d1a22"/>
+    </linearGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b1018" stop-opacity="0"/><stop offset="1" stop-color="#0b1018" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="play" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#5b3ff0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1100" height="620" fill="url(#page)"/>
+  <rect width="1100" height="330" fill="url(#backdrop)"/>
+  <rect y="230" width="1100" height="140" fill="url(#fade)"/>
+
+  <!-- top bar -->
+  <g font-family="Inter">
+    <text x="40" y="34" font-size="15" font-weight="700" fill="#5d6b82" letter-spacing="0.4">Jellyfin</text>
+    <text x="1060" y="34" font-size="12" fill="#3f4a5c" text-anchor="end">simulated view</text>
+  </g>
+
+  <!-- poster -->
+  <g>
+    <rect x="48" y="96" width="238" height="356" rx="10" fill="url(#poster)"/>
+    <g opacity="0.9">
+      <circle cx="167" cy="230" r="54" fill="none" stroke="#7fe0c4" stroke-opacity="0.5" stroke-width="2"/>
+      <path d="M167 176 v108 M113 230 h108" stroke="#7fe0c4" stroke-opacity="0.25" stroke-width="1.5"/>
+    </g>
+    <text x="167" y="243" font-family="Inter" font-size="40" font-weight="700" fill="#cfe9e2" text-anchor="middle" opacity="0.92">NL</text>
+    <text x="167" y="424" font-family="Inter" font-size="11" fill="#8fa3b8" text-anchor="middle" letter-spacing="1.6">ORIGINAL SERIES</text>
+  </g>
+
+  <!-- main info -->
+  <g font-family="Inter">
+    <text x="320" y="140" font-size="38" font-weight="700" fill="#f4f6fa" letter-spacing="-0.8">Northern Light</text>
+    <text x="322" y="170" font-size="13" fill="#8c97ab">2024 · TV-14 · Season 1 · 8 episodes · 52 min each</text>
+
+    <g font-size="11" font-weight="600">
+      <rect x="322" y="186" width="46" height="22" rx="6" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="334" y="201" fill="#a8b3c4">2024</text>
+      <rect x="376" y="186" width="44" height="22" rx="6" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="386" y="201" fill="#a8b3c4">TV-14</text>
+      <rect x="428" y="186" width="92" height="22" rx="6" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="440" y="201" fill="#a8b3c4">Mystery</text>
+      <rect x="528" y="186" width="66" height="22" rx="6" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.12"/>
+      <text x="540" y="201" fill="#a8b3c4">Drama</text>
+      <text x="606" y="202" fill="#f0a54a">★ 8.1</text>
+    </g>
+
+    <!-- buttons -->
+    <g>
+      <rect x="322" y="232" width="126" height="40" rx="20" fill="url(#play)"/>
+      <path d="M346 246 l14 8 l-14 8 z" fill="#ffffff"/>
+      <text x="370" y="258" font-size="13.5" font-weight="600" fill="#ffffff">Play</text>
+
+      <rect x="460" y="232" width="176" height="40" rx="20" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.16"/>
+      <text x="480" y="258" font-size="13" font-weight="600" fill="#c8d1e0">Select version</text>
+      <path d="M616 249 l5 6 l5 -6 z" fill="#c8d1e0"/>
+
+      <circle cx="674" cy="252" r="20" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14"/>
+      <path d="M667 245 l12 7 l-12 7 z" fill="#c8d1e0" opacity="0.75"/>
+      <circle cx="726" cy="252" r="20" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.14"/>
+      <path d="M726 244 l3.4 6.9 7.6 1.1 -5.5 5.4 1.3 7.6 -6.8 -3.6 -6.8 3.6 1.3 -7.6 -5.5 -5.4 7.6 -1.1 z" fill="#f0a54a" opacity="0.9"/>
+    </g>
+
+    <!-- versions -->
+    <text x="322" y="308" font-size="11.5" font-weight="600" fill="#6f7a8f" letter-spacing="1.1">VERSIONS</text>
+    <g font-size="11.5" font-weight="600">
+      <rect x="322" y="318" width="120" height="28" rx="14" fill="#35c4a0" fill-opacity="0.14" stroke="#35c4a0" stroke-opacity="0.45"/>
+      <circle cx="338" cy="332" r="3.5" fill="#35c4a0"/>
+      <text x="348" y="337" fill="#7fe0c4">1 Local</text>
+      <text x="392" y="337" fill="#5e9c8e" font-weight="500">1080p</text>
+
+      <rect x="452" y="318" width="138" height="28" rx="14" fill="#7c5cff" fill-opacity="0.16" stroke="#7c5cff" stroke-opacity="0.5"/>
+      <circle cx="468" cy="332" r="3.5" fill="#a99cff"/>
+      <text x="478" y="337" fill="#bdb2ff">2 Stream</text>
+      <text x="534" y="337" fill="#7f74b8" font-weight="500">720p</text>
+
+      <rect x="600" y="318" width="128" height="28" rx="14" fill="#f0a54a" fill-opacity="0.13" stroke="#f0a54a" stroke-opacity="0.42"/>
+      <circle cx="616" cy="332" r="3.5" fill="#f0a54a"/>
+      <text x="626" y="337" fill="#f3c286">3 NAS</text>
+      <text x="666" y="337" fill="#a8814f" font-weight="500">2160p</text>
+    </g>
+
+    <!-- overview -->
+    <text x="322" y="386" font-size="12.5" fill="#8c97ab" line-height="1.6">A lighthouse keeper on a stretch of coast nobody visits starts receiving</text>
+    <text x="322" y="406" font-size="12.5" fill="#8c97ab">weather reports for a storm that was never recorded. What begins as a</text>
+    <text x="322" y="426" font-size="12.5" fill="#8c97ab">paperwork problem turns into eight nights of counting ships that are not there.</text>
+  </g>
+
+  <!-- episode list -->
+  <g>
+    <line x1="48" y1="486" x2="1052" y2="486" stroke="#ffffff" stroke-opacity="0.07"/>
+    <text x="48" y="512" font-family="Inter" font-size="12.5" font-weight="600" fill="#8c97ab" letter-spacing="0.6">SEASON 1</text>
+
+    <rect x="48" y="526" width="1004" height="60" rx="10" fill="#ffffff" fill-opacity="0.035" stroke="#ffffff" stroke-opacity="0.07"/>
+    <rect x="60" y="538" width="66" height="36" rx="6" fill="#1b2433"/>
+    <text x="93" y="561" font-family="Inter" font-size="10.5" fill="#5f6b80" text-anchor="middle">S01E01</text>
+
+    <g font-family="Inter">
+      <text x="142" y="552" font-size="13" font-weight="600" fill="#dfe5ee">1 · The Signal</text>
+      <text x="142" y="570" font-size="11.5" fill="#6f7a8f">52 min · two sources available</text>
+
+      <g font-size="10.5" font-weight="600">
+        <rect x="806" y="544" width="78" height="24" rx="12" fill="#35c4a0" fill-opacity="0.14" stroke="#35c4a0" stroke-opacity="0.4"/>
+        <text x="820" y="560" fill="#7fe0c4">1 Local</text>
+        <rect x="892" y="544" width="88" height="24" rx="12" fill="#7c5cff" fill-opacity="0.16" stroke="#7c5cff" stroke-opacity="0.45"/>
+        <text x="906" y="560" fill="#bdb2ff">2 Stream</text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0e16"/><stop offset="1" stop-color="#101725"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="440" fill="url(#bg)"/>
+  <rect width="1200" height="440" fill="none" stroke="#1b2434" stroke-width="2"/>
+
+  <g font-family="Inter">
+    <text x="40" y="44" font-size="13" font-weight="600" fill="#6f7a8f" letter-spacing="1.4">A SOURCE GOES OFFLINE — TWO OUTCOMES</text>
+
+    <!-- ================= without placeholder ================= -->
+    <rect x="40" y="66" width="540" height="300" rx="16" fill="#120f14" stroke="#3a2430" stroke-width="1.2"/>
+    <rect x="40" y="66" width="540" height="4" rx="2" fill="#e0584f" fill-opacity="0.6"/>
+    <text x="72" y="104" font-size="15" font-weight="600" fill="#f0a7a2">Plain symlinks only</text>
+    <text x="72" y="128" font-size="12.5" fill="#8a7d84">the link points into a mount that is gone</text>
+
+    <g font-family="JetBrains Mono" font-size="12.5">
+      <text x="72" y="168" fill="#8b97ad">/merged/TV Shows/Northern Light (2024)/</text>
+      <text x="72" y="190" fill="#8b97ad">  Season 01/</text>
+      <text x="88" y="212" fill="#c9d3e2">… - 1 Local.mkv  →  /Raid/…</text>
+      <text x="88" y="234" fill="#7a5a5a">… - 2 Stream.mkv  —  broken link</text>
+    </g>
+
+    <g font-family="Inter">
+      <rect x="72" y="262" width="216" height="30" rx="8" fill="#e0584f" fill-opacity="0.12" stroke="#e0584f" stroke-opacity="0.45"/>
+      <circle cx="88" cy="277" r="4" fill="#e0584f"/>
+      <text x="100" y="282" font-size="12.5" font-weight="600" fill="#f0a7a2">scan drops the episode</text>
+      <text x="72" y="320" font-size="12.5" fill="#8a7d84">Jellyfin no longer finds the file, removes it from the</text>
+      <text x="72" y="340" font-size="12.5" fill="#8a7d84">library, playback state and metadata go with it.</text>
+    </g>
+
+    <!-- ================= with placeholder ================= -->
+    <rect x="620" y="66" width="540" height="300" rx="16" fill="#0c1512" stroke="#1f3b34" stroke-width="1.2"/>
+    <rect x="620" y="66" width="540" height="4" rx="2" fill="#35c4a0" fill-opacity="0.7"/>
+    <text x="652" y="104" font-size="15" font-weight="600" fill="#7fe0c4">Shadow library</text>
+    <text x="652" y="128" font-size="12.5" fill="#7d8f8a">the target keeps a placeholder with the same name</text>
+
+    <g font-family="JetBrains Mono" font-size="12.5">
+      <text x="652" y="168" fill="#8b97ad">/merged/TV Shows/Northern Light (2024)/</text>
+      <text x="652" y="190" fill="#8b97ad">  Season 01/</text>
+      <text x="668" y="212" fill="#c9d3e2">… - 1 Local.mkv  →  /Raid/…</text>
+      <text x="668" y="234" fill="#9fd8c8">… - 2 Stream.mkv  —  placeholder</text>
+    </g>
+
+    <g font-family="Inter">
+      <rect x="652" y="262" width="216" height="30" rx="8" fill="#35c4a0" fill-opacity="0.12" stroke="#35c4a0" stroke-opacity="0.45"/>
+      <circle cx="668" cy="277" r="4" fill="#35c4a0"/>
+      <text x="680" y="282" font-size="12.5" font-weight="600" fill="#7fe0c4">entry stays in the library</text>
+      <text x="652" y="320" font-size="12.5" fill="#7d8f8a">Same extension, resolution and runtime, so the entry keeps</text>
+      <text x="652" y="340" font-size="12.5" fill="#7d8f8a">its place; when the mount is back, the link replaces it.</text>
+    </g>
+  </g>
+
+  <g font-family="Inter" font-size="11.5" fill="#4b5568">
+    <text x="40" y="400">Placeholders are marker files — a few hundred bytes each, nothing to back up.</text>
+    <text x="40" y="422" fill="#3d4657">The trade-off: while a source is gone its version is listed but not playable.</text>
+  </g>
+</svg>

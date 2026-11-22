@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="430" viewBox="0 0 1100 430">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1320"/><stop offset="1" stop-color="#0a0e16"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1100" height="430" rx="14" fill="url(#bg)"/>
+  <rect x="0.6" y="0.6" width="1098" height="428" rx="14" fill="none" stroke="#232c3d" stroke-width="1.2"/>
+
+  <g font-family="Inter">
+    <text x="36" y="44" font-size="15" font-weight="700" fill="#e8ecf4">Cross-Source Merge</text>
+    <text x="1064" y="44" font-size="11.5" fill="#3f4a5c" text-anchor="end">simulated view</text>
+
+    <g font-size="12.5" font-weight="600">
+      <text x="36" y="76" fill="#b3bccd">Sources</text>
+      <rect x="32" y="88" width="62" height="2" rx="1" fill="#7c5cff"/>
+      <text x="126" y="76" fill="#5f6b80">Target</text>
+      <text x="192" y="76" fill="#5f6b80">Categories</text>
+      <text x="292" y="76" fill="#5f6b80">Cleanup</text>
+    </g>
+    <line x1="24" y1="92" x2="1076" y2="92" stroke="#1e2637"/>
+
+    <g font-size="10.5" font-weight="600" fill="#5f6b80" letter-spacing="0.9">
+      <text x="36" y="122">TAG</text>
+      <text x="152" y="122">KIND</text>
+      <text x="256" y="122">RANK</text>
+      <text x="330" y="122">SOURCE FOLDER</text>
+      <text x="756" y="122">CATEGORY</text>
+      <text x="918" y="122">SHADOW</text>
+    </g>
+
+    <g font-family="JetBrains Mono" font-size="12.5">
+      <!-- row 1 -->
+      <g font-family="Inter" font-size="11.5" font-weight="600">
+        <rect x="36" y="138" width="86" height="26" rx="13" fill="#35c4a0" fill-opacity="0.14" stroke="#35c4a0" stroke-opacity="0.45"/>
+        <circle cx="52" cy="151" r="3.2" fill="#35c4a0"/>
+        <text x="62" y="156" fill="#7fe0c4">1 Local</text>
+      </g>
+      <text x="152" y="156" font-family="Inter" font-size="12" fill="#8b97ad">local</text>
+      <text x="256" y="156" font-family="Inter" font-size="12" fill="#8b97ad">10</text>
+      <text x="330" y="156" fill="#c9d3e2">/Raid/Movies/TV Shows</text>
+      <text x="756" y="156" font-family="Inter" font-size="12" fill="#8b97ad">shows</text>
+      <rect x="918" y="142" width="30" height="17" rx="8.5" fill="#7c5cff" fill-opacity="0.28" stroke="#7c5cff" stroke-opacity="0.5"/>
+      <circle cx="939" cy="150.5" r="5.5" fill="#a99cff"/>
+
+      <!-- row 2 -->
+      <g font-family="Inter" font-size="11.5" font-weight="600">
+        <rect x="36" y="190" width="96" height="26" rx="13" fill="#7c5cff" fill-opacity="0.16" stroke="#7c5cff" stroke-opacity="0.5"/>
+        <circle cx="52" cy="203" r="3.2" fill="#a99cff"/>
+        <text x="62" y="208" fill="#bdb2ff">2 Stream</text>
+      </g>
+      <text x="152" y="208" font-family="Inter" font-size="12" fill="#8b97ad">stream</text>
+      <text x="256" y="208" font-family="Inter" font-size="12" fill="#8b97ad">20</text>
+      <text x="330" y="208" fill="#c9d3e2">/media/emby/TV Shows</text>
+      <text x="756" y="208" font-family="Inter" font-size="12" fill="#8b97ad">shows</text>
+      <rect x="918" y="194" width="30" height="17" rx="8.5" fill="#7c5cff" fill-opacity="0.28" stroke="#7c5cff" stroke-opacity="0.5"/>
+      <circle cx="939" cy="202.5" r="5.5" fill="#a99cff"/>
+
+      <!-- row 3 -->
+      <g font-family="Inter" font-size="11.5" font-weight="600">
+        <rect x="36" y="242" width="84" height="26" rx="13" fill="#f0a54a" fill-opacity="0.13" stroke="#f0a54a" stroke-opacity="0.42"/>
+        <circle cx="52" cy="255" r="3.2" fill="#f0a54a"/>
+        <text x="62" y="260" fill="#f3c286">3 NAS</text>
+      </g>
+      <text x="152" y="260" font-family="Inter" font-size="12" fill="#8b97ad">nas</text>
+      <text x="256" y="260" font-family="Inter" font-size="12" fill="#8b97ad">30</text>
+      <text x="330" y="260" fill="#c9d3e2">/mnt/nas/archive/TV</text>
+      <text x="756" y="260" font-family="Inter" font-size="12" fill="#8b97ad">shows</text>
+      <rect x="918" y="246" width="30" height="17" rx="8.5" fill="#ffffff" fill-opacity="0.1" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="924.5" cy="254.5" r="5.5" fill="#7b8698"/>
+
+      <line x1="36" y1="176" x2="1064" y2="176" stroke="#1a2231"/>
+      <line x1="36" y1="228" x2="1064" y2="228" stroke="#1a2231"/>
+      <line x1="36" y1="280" x2="1064" y2="280" stroke="#1a2231"/>
+    </g>
+
+    <g font-size="11.5">
+      <text x="36" y="312" fill="#6f7a8f">Target series</text>
+      <text x="150" y="312" font-family="JetBrains Mono" font-size="12.5" fill="#c9d3e2">/merged/TV Shows</text>
+      <text x="430" y="312" fill="#6f7a8f">Movies</text>
+      <text x="500" y="312" font-family="JetBrains Mono" font-size="12.5" fill="#c9d3e2">/merged/Movies</text>
+      <text x="790" y="312" fill="#6f7a8f">Interval</text>
+      <text x="862" y="312" font-family="JetBrains Mono" font-size="12.5" fill="#c9d3e2">15 min</text>
+      <text x="960" y="312" fill="#6f7a8f">Dry run</text>
+      <rect x="1022" y="299" width="30" height="17" rx="8.5" fill="#35c4a0" fill-opacity="0.3" stroke="#35c4a0" stroke-opacity="0.5"/>
+      <circle cx="1044" cy="307.5" r="5.5" fill="#7fe0c4"/>
+    </g>
+
+    <text x="36" y="352" font-size="11.5" fill="#4b5568">Rows are folders, not libraries. The tag is the version label Jellyfin shows; rank decides</text>
+    <text x="36" y="372" font-size="11.5" fill="#4b5568">which source wins when two folders claim the same file. Shadow keeps a source's entries</text>
+    <text x="36" y="392" font-size="11.5" fill="#4b5568">visible while its mount is gone.</text>
+  </g>
+</svg>
