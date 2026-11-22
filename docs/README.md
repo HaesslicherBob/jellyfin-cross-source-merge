@@ -28,3 +28,4 @@ your own). The script renders at 2× and keeps the background transparent.
 | `jellyfin-versions.png` | *What it looks like in Jellyfin* |
 | `shadow-library.png` | *Shadow library* — plain link vs. placeholder |
 | `settings-sources.png` | *The settings page* — sources table |
+| `social-preview.png` | repo social preview (1280×640, upload under *Settings → Social preview*) |
